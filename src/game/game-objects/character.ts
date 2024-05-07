@@ -1,4 +1,4 @@
-import { GameObjects, Scene, Types } from "phaser";
+import { GameObjects, Scene } from "phaser";
 
 class Character {
   sprite: GameObjects.Graphics;
