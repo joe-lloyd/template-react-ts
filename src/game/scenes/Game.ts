@@ -1,31 +1,69 @@
 import { Scene } from "phaser";
-import Player from "../game-objects/player.ts";
-import { MeleeEnemy, RangedEnemy } from "../game-objects/enemy.ts";
+import Player from "../game-objects/player";
+import { MeleeEnemy, RangedEnemy } from "../game-objects/enemy";
 import { EventBus } from "../EventBus.ts";
 
 export class Game extends Scene {
-    camera: Phaser.Cameras.Scene2D.Camera;
     player: Player;
-    gridSize: number = 32;
+    camera: Phaser.Cameras.Scene2D.Camera;
     graphics: Phaser.GameObjects.Graphics;
     meleeEnemies: MeleeEnemy[] = [];
     rangedEnemies: RangedEnemy[] = [];
+    bullets: Phaser.Physics.Arcade.Group;
+    width: number = 1024; // Game width
+    height: number = 768; // Game height
+    gridSize: number = 32;
 
     constructor() {
         super('Game');
     }
 
     create() {
+        this.physics.world.setBounds(0, 0, this.width, this.height);
+
+        this.graphics = this.add.graphics({ lineStyle: { width: 1, color: 0x00ff00, alpha: 0.4 } });
+
+
         this.camera = this.cameras.main;
         this.camera.setBackgroundColor(0x000000);
-        this.graphics = this.add.graphics({ lineStyle: { width: 1, color: 0x00ff00, alpha: 0.4 } });
-        this.player = new Player(this, 512, 384);
-        this.camera.startFollow(this.player.sprite, true, 0.09, 0.09);
         EventBus.emit('current-scene-ready', this);
+        this.bullets = this.physics.add.group({ classType: Phaser.GameObjects.Ellipse, runChildUpdate: true });
 
-        for (let i = 0; i < 5; i++) {
-            this.meleeEnemies.push(new MeleeEnemy(this, Phaser.Math.Between(100, 700), Phaser.Math.Between(100, 500)));
-            this.rangedEnemies.push(new RangedEnemy(this, Phaser.Math.Between(100, 700), Phaser.Math.Between(100, 500)));
+        for (let i = 0; i < 2; i++) {
+            // Spawn at the edges
+            const { x: mx, y: my } = this.getRandomEdgePosition();
+            this.meleeEnemies.push(new MeleeEnemy(this, mx, my));
+
+            const { x: rx, y: ry } = this.getRandomEdgePosition();
+            this.rangedEnemies.push(new RangedEnemy(this, rx, ry, this.bullets));
+        }
+        const allEnemies = [...this.meleeEnemies, ...this.rangedEnemies];
+        this.player = new Player(this, this.width / 2, this.height / 2, allEnemies);
+        this.camera.startFollow(this.player.sprite, true, 0.09, 0.09);
+    }
+
+    update(time: number, delta: number) {
+        const allEnemies = [...this.meleeEnemies, ...this.rangedEnemies];
+        this.player.update(delta);
+        this.drawBackground();
+
+        this.meleeEnemies.forEach(enemy => enemy.update(delta, this.player, allEnemies));
+        this.rangedEnemies.forEach(enemy => enemy.update(delta, this.player, allEnemies));
+    }
+
+    getRandomEdgePosition() {
+        // Determine whether to spawn on a horizontal or vertical edge
+        const spawnOnVerticalEdge = Phaser.Math.Between(0, 1) === 0;
+        if (spawnOnVerticalEdge) {
+            // Spawn on left or right edge
+            const x = Phaser.Math.Between(0, 1) === 0 ? 0 : this.width;
+            const y = Phaser.Math.Between(0, this.height);
+            return { x, y };
+        } else {
+            // Spawn on top or bottom edge
+            const x = Phaser.Math.Between(0, this.width);
+            const y = Phaser.Math.Between(0, 1) === 0 ? 0 : this.height;
+            return { x, y };
         }
     }
 
@@ -51,12 +89,6 @@ export class Game extends Scene {
         }
     }
 
-    update() {
-        this.player.update(this.game.loop.delta);
-        this.drawBackground();
-        this.meleeEnemies.forEach(enemy => enemy.update(this.game.loop.delta, this.player));
-        this.rangedEnemies.forEach(enemy => enemy.update(this.game.loop.delta, this.player));
-    }
 
     changeScene() {
         this.scene.start('GameOver');

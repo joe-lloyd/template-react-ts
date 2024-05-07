@@ -22,8 +22,9 @@ class Player {
   isAttacking: boolean;
   attackCooldown: number;
   attackCooldownTime: number;
+  enemies: any[]; // Reference to enemies
 
-  constructor(scene: Scene, x: number, y: number) {
+  constructor(scene: Scene, x: number, y: number, enemies: any[]) {
     this.scene = scene;
     this.x = x;
     this.y = y;
@@ -51,6 +52,7 @@ class Player {
     this.isAttacking = false;
     this.attackCooldown = 0;
     this.attackCooldownTime = 500;
+    this.enemies = enemies; // Store reference to enemies
   }
 
   updatePosition(x: number, y: number) {
@@ -238,6 +240,15 @@ class Player {
         graphics.lineTo(baseX2, baseY2);
         graphics.closePath();
         graphics.fillPath();
+
+        // Check for collision with enemies
+        const swordHitbox = new Phaser.Geom.Triangle(tipX, tipY, baseX1, baseY1, baseX2, baseY2);
+        this.enemies.forEach(enemy => {
+          const enemyHitbox = new Phaser.Geom.Triangle(enemy.x - 16, enemy.y - 16, enemy.x, enemy.y + 16, enemy.x + 16, enemy.y - 16);
+          if (Phaser.Geom.Intersects.TriangleToTriangle(swordHitbox, enemyHitbox)) {
+            enemy.destroyEnemy(); // Call destroyEnemy method on the enemy
+          }
+        });
       };
 
       // Update the graphics over time with easing

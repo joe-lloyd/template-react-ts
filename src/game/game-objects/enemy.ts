@@ -1,5 +1,5 @@
 import Character from "./character";
-import { Physics, Scene } from "phaser";
+import { GameObjects, Physics, Scene } from "phaser";
 
 class MeleeEnemy extends Character {
   separationDistance: number;
@@ -23,7 +23,7 @@ class MeleeEnemy extends Character {
     let moveY = 0;
     let neighborCount = 0;
 
-    for (let enemy of enemies) {
+    for (const enemy of enemies) {
       if (enemy !== this) {
         const distance = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
         if (distance < this.separationDistance) {
@@ -39,6 +39,41 @@ class MeleeEnemy extends Character {
       this.x += separationVector.x * this.speed * 0.1;
       this.y += separationVector.y * this.speed * 0.1;
     }
+  }
+
+  destroyEnemy() {
+    // Stop attacking
+    this.isAttacking = false;
+
+    // Particle explosion using small circles
+    const explosionParticles: GameObjects.Graphics[] = [];
+
+    for (let i = 0; i < 50; i++) {
+      const particle = this.scene.add.graphics({ fillStyle: { color: 730274 } });
+      particle.fillCircle(0, 0, 5);
+      particle.setPosition(this.x, this.y);
+
+      // Set random velocity
+      const angle = Phaser.Math.FloatBetween(0, 2 * Math.PI);
+      const speed = Phaser.Math.FloatBetween(50, 100);
+      const velocity = new Phaser.Math.Vector2(Math.cos(angle) * speed, Math.sin(angle) * speed);
+
+      explosionParticles.push(particle);
+
+      // Animate the particle
+      this.scene.tweens.add({
+        targets: particle,
+        x: { value: this.x + velocity.x, duration: 500 },
+        y: { value: this.y + velocity.y, duration: 500 },
+        alpha: { value: 0, duration: 500 },
+        onComplete: () => {
+          particle.destroy();
+        }
+      });
+    }
+
+    // Destroy the enemy sprite
+    this.sprite.destroy();
   }
 }
 
@@ -78,7 +113,7 @@ class RangedEnemy extends Character {
     let moveY = 0;
     let neighborCount = 0;
 
-    for (let enemy of enemies) {
+    for (const enemy of enemies) {
       if (enemy !== this) {
         const distance = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
         if (distance < this.separationDistance) {
@@ -122,6 +157,42 @@ class RangedEnemy extends Character {
       this.attackCooldown -= delta;
     }
   }
+
+  destroyEnemy() {
+    // Stop attacking
+    this.isAttacking = false;
+
+    // Particle explosion using small circles
+    const explosionParticles: GameObjects.Graphics[] = [];
+
+    for (let i = 0; i < 50; i++) {
+      const particle = this.scene.add.graphics({ fillStyle: { color: 730274 } });
+      particle.fillCircle(0, 0, 5);
+      particle.setPosition(this.x, this.y);
+
+      // Set random velocity
+      const angle = Phaser.Math.FloatBetween(0, 2 * Math.PI);
+      const speed = Phaser.Math.FloatBetween(50, 100);
+      const velocity = new Phaser.Math.Vector2(Math.cos(angle) * speed, Math.sin(angle) * speed);
+
+      explosionParticles.push(particle);
+
+      // Animate the particle
+      this.scene.tweens.add({
+        targets: particle,
+        x: { value: this.x + velocity.x, duration: 500 },
+        y: { value: this.y + velocity.y, duration: 500 },
+        alpha: { value: 0, duration: 500 },
+        onComplete: () => {
+          particle.destroy();
+        }
+      });
+    }
+
+    // Destroy the enemy sprite
+    this.sprite.destroy();
+  }
+
 }
 
 export { RangedEnemy, MeleeEnemy };
