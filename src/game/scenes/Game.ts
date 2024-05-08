@@ -4,9 +4,12 @@ import Player from "../game-objects/Player";
 import { EventBus } from "../EventBus";
 import { EnemySpawner } from "../game-objects/EnemySpawner";
 import { BackgroundGrid } from "../game-objects/BackgroundGrid";
+import { RangedEnemy } from "../game-objects/RangedEnemy.ts";
+import { MeleeEnemy } from "../game-objects/MeleeEnemy.ts";
 
 export class Game extends Scene {
   player: Player;
+  enemies: (RangedEnemy | MeleeEnemy)[];
   camera: Phaser.Cameras.Scene2D.Camera;
   spawner: EnemySpawner;
   backgroundGrid: BackgroundGrid;
@@ -29,14 +32,16 @@ export class Game extends Scene {
     this.backgroundGrid.initializeGraphics();
 
     const { meleeEnemies, rangedEnemies } = this.spawner.spawnEnemies(2);
-    this.player = new Player(this, this.width / 2, this.height / 2, [...meleeEnemies, ...rangedEnemies]);
+    this.enemies = [...meleeEnemies, ...rangedEnemies];
+    this.player = new Player(this, this.width / 2, this.height / 2, this.enemies);
     this.camera.startFollow(this.player.sprite, true, 0.09, 0.09);
   }
 
   update(time: number, delta: number) {
     this.backgroundGrid.draw();
     this.player.update(delta);
-    [...this.spawner.meleeEnemies, ...this.spawner.rangedEnemies].forEach(enemy => enemy.update(delta, this.player, [...this.spawner.meleeEnemies, ...this.spawner.rangedEnemies]));
+    this.enemies = this.enemies.filter((enemy) => !enemy.isDestroyed)
+    this.enemies.forEach(enemy => enemy.update(delta, this.player, [...this.spawner.meleeEnemies, ...this.spawner.rangedEnemies]));
   }
 
   changeScene() {

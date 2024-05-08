@@ -8,10 +8,12 @@ class Enemy extends Character {
   isAttacking: boolean;
   attackCooldown: number;
   attackCooldownTime: number;
+  isDestroyed: boolean;
 
   constructor(scene: Scene, x: number, y: number, color: number, speed: number, separationDistance: number) {
     super(scene, x, y, color, speed);
     this.separationDistance = separationDistance;
+    this.isDestroyed = false;
   }
 
   applySeparation(enemies: Character[]) {
@@ -38,9 +40,6 @@ class Enemy extends Character {
   }
 
   destroyEnemy() {
-    // Stop attacking
-    this.isAttacking = false;
-
     // Particle explosion using small circles
     const explosionParticles: GameObjects.Graphics[] = [];
 
@@ -70,6 +69,7 @@ class Enemy extends Character {
 
     // Destroy the enemy sprite
     this.sprite.destroy();
+    this.isDestroyed = true;
   }
 
 }
