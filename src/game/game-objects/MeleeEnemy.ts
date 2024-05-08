@@ -1,70 +1,14 @@
-import { GameObjects, Scene } from "phaser";
+import Enemy from "./Enemy.ts";
+import { Scene } from "phaser";
+import Character from "./Character.ts";
 
-class Character {
-  sprite: GameObjects.Graphics;
-  speed: number;
-  x: number;
-  y: number;
-  scene: Scene;
-  lastDirection: Phaser.Math.Vector2;
-  dodgeSpeed: number;
-  dodgeCooldown: number;
-  dodgeTime: number;
-  isDodging: boolean;
-  dodgeDirection: Phaser.Math.Vector2;
-  parryDuration: number;
-  isParrying: boolean;
-  parryCooldown: number;
-  parryCooldownTime: number;
-  attackDuration: number;
-  isAttacking: boolean;
-  attackCooldown: number;
-  attackCooldownTime: number;
-
-  constructor(scene: Scene, x: number, y: number, color: number) {
-    this.scene = scene;
-    this.x = x;
-    this.y = y;
-    this.sprite = scene.add.graphics({ fillStyle: { color } });
-    this.updatePosition(x, y);
-    this.speed = 200;
-    this.dodgeSpeed = 500;
-    this.dodgeCooldown = 0;
-    this.dodgeTime = 200; // 200ms dodge time
-    this.isDodging = false;
-    this.lastDirection = new Phaser.Math.Vector2(0, -1); // Initial direction up
-    this.dodgeDirection = new Phaser.Math.Vector2();
-    this.parryDuration = 100; // Duration of the parry in frames
-    this.isParrying = false;
-    this.parryCooldown = 0;
-    this.parryCooldownTime = 1000;
+export class MeleeEnemy extends Enemy {
+  constructor(scene: Scene, x: number, y: number) {
+    super(scene, x, y, 0xFF00FF, 150, 50); // Pink color
     this.attackDuration = 200;
     this.isAttacking = false;
     this.attackCooldown = 0;
     this.attackCooldownTime = 500;
-  }
-
-  updatePosition(x: number, y: number) {
-    this.sprite.clear();
-    this.sprite.fillTriangle(-16, -16, 0, 16, 16, -16);
-    this.sprite.setPosition(x, y);
-  }
-
-  move(delta: number, direction: Phaser.Math.Vector2) {
-    this.x += direction.x * this.speed * delta / 1000;
-    this.y += direction.y * this.speed * delta / 1000;
-    this.updatePosition(this.x, this.y);
-  }
-
-  handleDodge(delta: number, direction: Phaser.Math.Vector2) {
-    if (this.isDodging) {
-      this.x += direction.x * this.dodgeSpeed * delta / 1000;
-      this.y += direction.y * this.dodgeSpeed * delta / 1000;
-    }
-
-    if (this.dodgeCooldown > 0) {
-      this.dodgeCooldown -= delta;
-    }
   }
 
   handleMeleeAttack(delta: number, color: number, radius: number) {
@@ -116,6 +60,12 @@ class Character {
       this.attackCooldown -= delta;
     }
   }
-}
 
-export default Character;
+  update(delta: number, player: Character, enemies: Character[]) {
+    this.applySeparation(enemies);
+
+    const direction = new Phaser.Math.Vector2(player.x - this.x, player.y - this.y).normalize();
+    this.move(delta, direction);
+    this.handleMeleeAttack(delta, 0xFF00FF, 40); // Pink triangle
+  }
+}

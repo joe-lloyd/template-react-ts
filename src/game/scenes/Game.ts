@@ -1,7 +1,8 @@
 import { Scene } from "phaser";
-import Player from "../game-objects/player";
-import { MeleeEnemy, RangedEnemy } from "../game-objects/enemy";
+import Player from "../game-objects/Player.ts";
 import { EventBus } from "../EventBus.ts";
+import { MeleeEnemy } from "../game-objects/MeleeEnemy.ts";
+import { RangedEnemy } from "../game-objects/RangedEnemy.ts";
 
 export class Game extends Scene {
     player: Player;
