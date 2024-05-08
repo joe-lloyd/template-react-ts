@@ -67,5 +67,7 @@ export class MeleeEnemy extends Enemy {
     const direction = new Phaser.Math.Vector2(player.x - this.x, player.y - this.y).normalize();
     this.move(delta, direction);
     this.handleMeleeAttack(delta, 0xFF00FF, 40); // Pink triangle
+    // Rotate towards player
+    this.sprite.rotation = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y) - Math.PI / 2;
   }
 }

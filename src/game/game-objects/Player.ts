@@ -1,17 +1,13 @@
-import { GameObjects, Scene, Types } from "phaser";
+import { Scene, Types } from "phaser";
+import Character from "./Character.ts";
 
-class Player {
-  sprite: GameObjects.Graphics;
-  speed: number;
+class Player extends Character {
   dodgeSpeed: number;
   dodgeCooldown: number;
   dodgeTime: number;
   isDodging: boolean;
   cursors: Types.Input.Keyboard.CursorKeys;
   wasd: { w: Types.Input.Keyboard.Key, a: Types.Input.Keyboard.Key, s: Types.Input.Keyboard.Key, d: Types.Input.Keyboard.Key };
-  scene: Scene;
-  x: number;
-  y: number;
   lastDirection: Phaser.Math.Vector2;
   dodgeDirection: Phaser.Math.Vector2;
   parryDuration: number;
@@ -25,22 +21,17 @@ class Player {
   enemies: any[]; // Reference to enemies
 
   constructor(scene: Scene, x: number, y: number, enemies: any[]) {
-    this.scene = scene;
-    this.x = x;
-    this.y = y;
-    this.sprite = scene.add.graphics({ fillStyle: { color: 0xFF0000 } });
-    this.updatePosition(x, y);
-    this.speed = 200;
+    super(scene, x, y, 0xFF0000, 200);
     this.dodgeSpeed = 500;
     this.dodgeCooldown = 0;
     this.dodgeTime = 200; // 200ms dodge time
     this.isDodging = false;
-    this.cursors = scene.input.keyboard.createCursorKeys();
+    this.cursors = this.scene.input.keyboard.createCursorKeys();
     this.wasd = {
-      w: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-      a: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-      s: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-      d: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+      w: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+      a: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+      s: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+      d: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
     };
     this.lastDirection = new Phaser.Math.Vector2(0, -1); // Initial direction up
     this.dodgeDirection = new Phaser.Math.Vector2();
