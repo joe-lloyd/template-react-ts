@@ -6,9 +6,9 @@ export class RangedEnemy extends Enemy {
   bullets: Phaser.Physics.Arcade.Group;
   attackRange: number;
 
-  constructor(scene: Scene, x: number, y: number, bullets: Phaser.Physics.Arcade.Group) {
+  constructor(scene: Scene, x: number, y: number) {
     super(scene, x, y, 0x00FFFF, 150, 50);
-    this.bullets = bullets;
+    this.bullets = scene.physics.add.group({ classType: Phaser.GameObjects.Ellipse, runChildUpdate: true });
     this.attackRange = 200; // Set desired range for shooting
 
     this.isAttacking = false;
