@@ -2,8 +2,9 @@ import { Scene, Types, Input } from "phaser";
 
 export default class InputHandler {
   cursors: Types.Input.Keyboard.CursorKeys;
-  wasd: Record<'w' | 'a' | 's' | 'd' | 'e', Input.Keyboard.Key>;
+  wasd: Record<"w" | "a" | "s" | "d" | "e", Input.Keyboard.Key>;
   gamepad: Input.Gamepad.Gamepad | null = null;
+  lastInputSource: "keyboard" | "mouse" | "gamepad" = "mouse"; // Default to mouse
   isMoving: boolean;
 
   constructor(private scene: Scene) {
@@ -20,8 +21,7 @@ export default class InputHandler {
     };
 
     // Gamepad setup
-    this.scene.input.gamepad.once('connected', (pad) => {
-      console.log('Gamepad connected', pad.id);
+    this.scene.input.gamepad.once("connected", (pad) => {
       this.gamepad = pad;
     });
     this.isMoving = false;
@@ -34,21 +34,26 @@ export default class InputHandler {
     // Keyboard input
     if (this.cursors.left.isDown || this.wasd.a.isDown) {
       x -= 1;
+      this.lastInputSource = "keyboard";
     }
     if (this.cursors.right.isDown || this.wasd.d.isDown) {
       x += 1;
+      this.lastInputSource = "keyboard";
     }
     if (this.cursors.up.isDown || this.wasd.w.isDown) {
       y -= 1;
+      this.lastInputSource = "keyboard";
     }
     if (this.cursors.down.isDown || this.wasd.s.isDown) {
       y += 1;
+      this.lastInputSource = "keyboard";
     }
 
     // Gamepad input
     if (this.gamepad) {
       x += this.gamepad.leftStick.x;
       y += this.gamepad.leftStick.y;
+      this.lastInputSource = "gamepad";
     }
 
     this.isMoving = x !== 0 || y !== 0;
@@ -56,15 +61,56 @@ export default class InputHandler {
     return new Phaser.Math.Vector2(x, y).normalize();
   }
 
-  isActionPressed(action: 'dodge' | 'attack' | 'parry'): boolean {
+  getRightStickDirection(): Phaser.Math.Vector2 | null {
+    if (this.gamepad && this.gamepad.rightStick) {
+      const x = this.gamepad.rightStick.x;
+      const y = this.gamepad.rightStick.y;
+      const deadZone = 0.1; // Define a dead zone to ignore minor inputs
+      if (Math.abs(x) > deadZone || Math.abs(y) > deadZone) { // Check if the stick is outside the dead zone
+        return new Phaser.Math.Vector2(x, y).normalize();
+      }
+    }
+    return null;
+  }
+
+  // Example of how you might check a trigger if it's exposed as an axis
+  // getTriggerInput(): boolean {
+  //   if (this.gamepad) {
+  //     // Example: Trigger might be on axis 3, and returns a value from -1 (rest) to 1 (fully pressed)
+  //     const leftTriggerValue = this.gamepad.axes[4].getValue();
+  //     if (leftTriggerValue > 0.5) { // Adjust deadzone as necessary
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
+
+  isActionPressed(action: "dodge" | "attack" | "parry"): boolean {
     switch (action) {
-      case 'dodge':
-        // console.log(this.cursors.space.isDown, this.gamepad && this.gamepad.buttons[0].pressed);
-        return (this.cursors.space.isDown || (this.gamepad && this.gamepad.buttons[0].pressed));
-      case 'attack':
-        return (this.scene.input.keyboard.checkDown(this.wasd.e) || (this.gamepad && this.gamepad.buttons[1].pressed));
-      case 'parry':
-        return (this.scene.input.activePointer.isDown || (this.gamepad && this.gamepad.buttons[2].pressed));
+      case "dodge":
+        return (
+          this.cursors.space.isDown ||
+          (this.gamepad && (
+            this.gamepad.buttons[0].pressed || // A button
+            this.gamepad.buttons[4].pressed    // Left Bumper
+          ))
+        );
+      case "attack":
+        return (
+          this.scene.input.keyboard.checkDown(this.wasd.e) ||
+          (this.gamepad && (
+            this.gamepad.buttons[1].pressed || // B button
+            this.gamepad.buttons[7].pressed // Right Trigger
+          ))
+        );
+      case "parry":
+        return (
+          this.scene.input.activePointer.isDown ||
+          (this.gamepad && (
+            this.gamepad.buttons[2].pressed || // X button
+            this.gamepad.buttons[5].pressed    // Right Bumper
+          ))
+        );
       default:
         return false;
     }

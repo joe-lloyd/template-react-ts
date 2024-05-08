@@ -195,14 +195,24 @@ class Player extends Character {
   }
 
   handleFacing() {
-    // Get world coordinates of the pointer
-    const pointer = this.scene.input.activePointer;
-    const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    let angle;
+    if (this.inputHandler.lastInputSource === 'gamepad') {
+      const rightStickDirection = this.inputHandler.getRightStickDirection();
+      if (rightStickDirection) {
+        angle = Phaser.Math.Angle.Between(0, 0, rightStickDirection.x, rightStickDirection.y);
+      } else {
+        // Fallback if no input from gamepad
+        return;
+      }
+    } else {
+      const pointer = this.scene.input.activePointer;
+      const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      angle = Phaser.Math.Angle.Between(this.x, this.y, worldPoint.x, worldPoint.y);
+    }
 
-    // Rotate towards the mouse pointer
-    const angle = Phaser.Math.Angle.Between(this.x, this.y, worldPoint.x, worldPoint.y);
     this.sprite.rotation = angle - Math.PI / 2;
   }
+
 
   cooldownUpdate(delta: number) {
     if (this.dodgeCooldown > 0) {
