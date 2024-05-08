@@ -20,6 +20,9 @@ const config: Phaser.Types.Core.GameConfig = {
         MainGame,
         GameOver
     ],
+    input: {
+        gamepad: true
+    },
     physics: {
         default: 'arcade',
         arcade: {

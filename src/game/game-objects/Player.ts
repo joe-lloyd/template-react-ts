@@ -1,16 +1,14 @@
-import { Scene, Types } from "phaser";
+import { Scene } from "phaser";
 import Character from "./Character.ts";
 import { MeleeEnemy } from "./MeleeEnemy.ts";
 import { RangedEnemy } from "./RangedEnemy.ts";
+import InputHandler from "./InputHandler.ts";
 
 class Player extends Character {
   dodgeSpeed: number;
   dodgeCooldown: number;
   dodgeTime: number;
   isDodging: boolean;
-  cursors: Types.Input.Keyboard.CursorKeys;
-  wasd: { w: Types.Input.Keyboard.Key, a: Types.Input.Keyboard.Key, s: Types.Input.Keyboard.Key, d: Types.Input.Keyboard.Key };
-  lastDirection: Phaser.Math.Vector2;
   dodgeDirection: Phaser.Math.Vector2;
   parryDuration: number;
   isParrying: boolean;
@@ -20,32 +18,28 @@ class Player extends Character {
   isAttacking: boolean;
   attackCooldown: number;
   attackCooldownTime: number;
+  dodgeCooldownTime: number;
   enemies: (MeleeEnemy | RangedEnemy)[]; // Reference to enemies
+  inputHandler: InputHandler;
 
-  constructor(scene: Scene, x: number, y: number, enemies: any[]) {
+  constructor(scene: Scene, x: number, y: number, enemies: (MeleeEnemy | RangedEnemy)[]) {
     super(scene, x, y, 0xFF0000, 200);
     this.dodgeSpeed = 500;
     this.dodgeCooldown = 0;
     this.dodgeTime = 200; // 200ms dodge time
     this.isDodging = false;
-    this.cursors = this.scene.input.keyboard.createCursorKeys();
-    this.wasd = {
-      w: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-      a: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-      s: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-      d: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
-    };
-    this.lastDirection = new Phaser.Math.Vector2(0, -1); // Initial direction up
     this.dodgeDirection = new Phaser.Math.Vector2();
     this.parryDuration = 100; // Duration of the parry in frames
     this.isParrying = false;
     this.parryCooldown = 0;
-    this.parryCooldownTime = 1000;
     this.attackDuration = 200;
     this.isAttacking = false;
     this.attackCooldown = 0;
+    this.parryCooldownTime = 1000;
     this.attackCooldownTime = 500;
+    this.dodgeCooldownTime = 500;
     this.enemies = enemies; // Store reference to enemies
+    this.inputHandler = new InputHandler(scene);
   }
 
   updatePosition(x: number, y: number) {
@@ -54,99 +48,32 @@ class Player extends Character {
     this.sprite.setPosition(x, y);
   }
 
-  move(delta: number) {
-    // Handle Dodge Roll
-    this.handleDodge(delta);
-
-    // Handle Regular Movement
-    if (!this.isDodging) {
-      this.handleMovement(delta);
-    }
-
-    // Get world coordinates of the pointer
-    const pointer = this.scene.input.activePointer;
-    const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-
-    // Rotate towards the mouse pointer
-    const angle = Phaser.Math.Angle.Between(this.x, this.y, worldPoint.x, worldPoint.y);
-    this.sprite.rotation = angle - Math.PI / 2;
-
-    this.updatePosition(this.x, this.y);
-  }
-
-  handleMovement(delta: number) {
-    let moveX = 0;
-    let moveY = 0;
-
-    if (this.cursors.left?.isDown || this.wasd.a.isDown) {
-      moveX = -1;
-    } else if (this.cursors.right?.isDown || this.wasd.d.isDown) {
-      moveX = 1;
-    }
-
-    if (this.cursors.up?.isDown || this.wasd.w.isDown) {
-      moveY = -1;
-    } else if (this.cursors.down?.isDown || this.wasd.s.isDown) {
-      moveY = 1;
-    }
-
-    if (moveX !== 0 || moveY !== 0) {
-      const direction = new Phaser.Math.Vector2(moveX, moveY).normalize();
-      this.x += direction.x * this.speed * (delta / this.scene.physics.world.timeScale) / 1000;
-      this.y += direction.y * this.speed * (delta / this.scene.physics.world.timeScale) / 1000;
-      this.lastDirection = direction; // Update last direction
-    }
-  }
-
-  handleDodge(delta: number) {
-    // Dodge Roll Logic
-    if (this.cursors.space.isDown && !this.isDodging && this.dodgeCooldown <= 0) {
+  handleDodge(moveDirection: Phaser.Math.Vector2) {
+    if (!this.isDodging && this.dodgeCooldown <= 0) {
       this.isDodging = true;
       this.sprite.setAlpha(0.5);
 
-      // Check if any movement key is currently held down
-      const isMoving = this.cursors.left?.isDown ||
-        this.cursors.right?.isDown ||
-        this.cursors.up?.isDown ||
-        this.cursors.down?.isDown ||
-        this.wasd.w.isDown ||
-        this.wasd.a.isDown ||
-        this.wasd.s.isDown ||
-        this.wasd.d.isDown;
-
-      if (isMoving) {
-        // If player is moving, dodge in the last movement direction
-        this.dodgeDirection = this.lastDirection.clone().normalize();
+      if (this.inputHandler.isMoving) {
+        this.dodgeDirection.x = moveDirection.x;
+        this.dodgeDirection.y = moveDirection.y;
       } else {
-        // Calculate the dodge angle based on the player's facing direction
-        const dodgeAngle = this.sprite.rotation - Math.PI /2; // Subtract PI to get the opposite direction
-
+        const dodgeAngle = this.sprite.rotation - Math.PI / 2; // Adjust to dodge backwards?
         this.dodgeDirection = new Phaser.Math.Vector2(Math.cos(dodgeAngle), Math.sin(dodgeAngle)).normalize();
-
       }
 
+      // Reset cooldown immediately
+      this.dodgeCooldown = this.dodgeCooldownTime;
 
-      this.dodgeCooldown = 1000; // 1-second cooldown
+      // Start the dodge effect
       this.scene.time.delayedCall(this.dodgeTime, () => {
         this.isDodging = false;
         this.sprite.setAlpha(1);
       });
     }
-
-    // Perform dodge movement
-    if (this.isDodging) {
-      this.x += this.dodgeDirection.x * this.dodgeSpeed * delta / 1000;
-      this.y += this.dodgeDirection.y * this.dodgeSpeed * delta / 1000;
-    }
-
-    // Update the cooldown timer
-    if (this.dodgeCooldown > 0) {
-      this.dodgeCooldown -= delta;
-    }
   }
 
-  handleParry(delta: number) {
-    if (this.scene.input.activePointer.isDown && !this.isParrying && this.parryCooldown <= 0) {
+  handleParry() {
+    if (!this.isParrying && this.parryCooldown <= 0) {
       this.isParrying = true;
 
       // Create the graphics object
@@ -183,22 +110,14 @@ class Player extends Character {
         onComplete: () => {
           graphics.destroy();
           this.isParrying = false;
-          this.parryCooldown = 1000; // Set parry cooldown (1 second)
-        }
+          this.parryCooldown = this.parryCooldownTime;
+        },
       });
-
-      // Start the parry cooldown
-      this.parryCooldown = this.parryCooldownTime;
-    }
-
-    // Update the parry cooldown timer
-    if (this.parryCooldown > 0) {
-      this.parryCooldown -= delta;
     }
   }
 
-  handleMeleeAttack(delta: number) {
-    if (this.scene.input.keyboard.addKey('E').isDown && !this.isAttacking && this.attackCooldown <= 0) {
+  handleMeleeAttack() {
+    if (!this.isAttacking && this.attackCooldown <= 0) {
       this.isAttacking = true;
 
       // Create the graphics object
@@ -249,7 +168,7 @@ class Player extends Character {
         from: 0,
         to: 1,
         duration: this.attackDuration,
-        ease: 'Sine.InOut',
+        ease: "Sine.InOut",
         onUpdate: (tween) => {
           updateGraphics(tween.getValue());
         },
@@ -257,23 +176,65 @@ class Player extends Character {
           graphics.destroy();
           this.isAttacking = false;
           this.attackCooldown = 1000; // Set attack cooldown (1 second)
-        }
+        },
       });
+    }
+    this.attackCooldown = this.attackCooldownTime;
+  }
 
-      // Start the attack cooldown
-      this.attackCooldown = this.attackCooldownTime;
+  handleMovement(moveDirection: Phaser.Math.Vector2, delta: number) {
+    if (this.isDodging) {
+      this.x += this.dodgeDirection.x * this.dodgeSpeed * delta / 1000;
+      this.y += this.dodgeDirection.y * this.dodgeSpeed * delta / 1000;
+    } else if (moveDirection.x !== 0 || moveDirection.y !== 0) {
+      this.x += moveDirection.x * this.speed * ((delta / this.scene.physics.world.timeScale) / 1000);
+      this.y += moveDirection.y * this.speed * ((delta / this.scene.physics.world.timeScale) / 1000);
     }
 
-    // Update the attack cooldown timer
+    this.updatePosition(this.x, this.y);
+  }
+
+  handleFacing() {
+    // Get world coordinates of the pointer
+    const pointer = this.scene.input.activePointer;
+    const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+
+    // Rotate towards the mouse pointer
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, worldPoint.x, worldPoint.y);
+    this.sprite.rotation = angle - Math.PI / 2;
+  }
+
+  cooldownUpdate(delta: number) {
+    if (this.dodgeCooldown > 0) {
+      this.dodgeCooldown -= delta;
+    }
+    if (this.parryCooldown > 0) {
+      this.parryCooldown -= delta;
+    }
     if (this.attackCooldown > 0) {
       this.attackCooldown -= delta;
     }
   }
 
   update(delta: number) {
-    this.move(delta);
-    this.handleParry(delta);
-    this.handleMeleeAttack(delta);
+    const moveDirection = this.inputHandler.getMoveDirection();
+
+    this.handleFacing();
+    this.handleMovement(moveDirection, delta);
+
+    if (this.inputHandler.isActionPressed("dodge")) {
+      this.handleDodge(moveDirection);
+    }
+
+    if (this.inputHandler.isActionPressed("attack")) {
+      this.handleMeleeAttack();
+    }
+
+    if (this.inputHandler.isActionPressed("parry")) {
+      this.handleParry();
+    }
+
+    this.cooldownUpdate(delta);
   }
 }
 
