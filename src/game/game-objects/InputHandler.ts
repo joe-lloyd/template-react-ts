@@ -4,7 +4,7 @@ export default class InputHandler {
   cursors: Types.Input.Keyboard.CursorKeys;
   wasd: Record<"w" | "a" | "s" | "d" | "e", Input.Keyboard.Key>;
   gamepad: Input.Gamepad.Gamepad | null = null;
-  lastInputSource: "keyboard" | "mouse" | "gamepad" = "mouse"; // Default to mouse
+  lastInputSource: "keyboard & mouse" | "gamepad" = "keyboard & mouse"; // Default to mouse
   isMoving: boolean;
 
   constructor(private scene: Scene) {
@@ -34,19 +34,19 @@ export default class InputHandler {
     // Keyboard input
     if (this.cursors.left.isDown || this.wasd.a.isDown) {
       x -= 1;
-      this.lastInputSource = "keyboard";
+      this.lastInputSource = "keyboard & mouse";
     }
     if (this.cursors.right.isDown || this.wasd.d.isDown) {
       x += 1;
-      this.lastInputSource = "keyboard";
+      this.lastInputSource = "keyboard & mouse";
     }
     if (this.cursors.up.isDown || this.wasd.w.isDown) {
       y -= 1;
-      this.lastInputSource = "keyboard";
+      this.lastInputSource = "keyboard & mouse";
     }
     if (this.cursors.down.isDown || this.wasd.s.isDown) {
       y += 1;
-      this.lastInputSource = "keyboard";
+      this.lastInputSource = "keyboard & mouse";
     }
 
     // Gamepad input
@@ -72,18 +72,6 @@ export default class InputHandler {
     }
     return null;
   }
-
-  // Example of how you might check a trigger if it's exposed as an axis
-  // getTriggerInput(): boolean {
-  //   if (this.gamepad) {
-  //     // Example: Trigger might be on axis 3, and returns a value from -1 (rest) to 1 (fully pressed)
-  //     const leftTriggerValue = this.gamepad.axes[4].getValue();
-  //     if (leftTriggerValue > 0.5) { // Adjust deadzone as necessary
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
 
   isActionPressed(action: "dodge" | "attack" | "parry"): boolean {
     switch (action) {

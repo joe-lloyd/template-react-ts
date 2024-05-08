@@ -18,6 +18,12 @@ class Enemy extends Character {
     this.isBeingDestroyed = false;
   }
 
+  getBounds() {
+    const worldWidth = this.scene.physics.world.bounds.width;
+    const worldHeight = this.scene.physics.world.bounds.height;
+    return new Phaser.Geom.Rectangle(this.x, this.y, worldWidth, worldHeight);
+  }
+
   applySeparation(enemies: Character[]) {
     let moveX = 0;
     let moveY = 0;
