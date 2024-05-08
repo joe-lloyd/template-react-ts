@@ -1,5 +1,7 @@
 import { Scene, Types } from "phaser";
 import Character from "./Character.ts";
+import { MeleeEnemy } from "./MeleeEnemy.ts";
+import { RangedEnemy } from "./RangedEnemy.ts";
 
 class Player extends Character {
   dodgeSpeed: number;
@@ -18,7 +20,7 @@ class Player extends Character {
   isAttacking: boolean;
   attackCooldown: number;
   attackCooldownTime: number;
-  enemies: any[]; // Reference to enemies
+  enemies: (MeleeEnemy | RangedEnemy)[]; // Reference to enemies
 
   constructor(scene: Scene, x: number, y: number, enemies: any[]) {
     super(scene, x, y, 0xFF0000, 200);
@@ -90,8 +92,8 @@ class Player extends Character {
 
     if (moveX !== 0 || moveY !== 0) {
       const direction = new Phaser.Math.Vector2(moveX, moveY).normalize();
-      this.x += direction.x * this.speed * delta / 1000;
-      this.y += direction.y * this.speed * delta / 1000;
+      this.x += direction.x * this.speed * (delta / this.scene.physics.world.timeScale) / 1000;
+      this.y += direction.y * this.speed * (delta / this.scene.physics.world.timeScale) / 1000;
       this.lastDirection = direction; // Update last direction
     }
   }

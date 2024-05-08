@@ -23,8 +23,8 @@ class Character {
   }
 
   move(delta: number, direction: Phaser.Math.Vector2) {
-    this.x += direction.x * this.speed * delta / 1000;
-    this.y += direction.y * this.speed * delta / 1000;
+    this.x += direction.x * this.speed * (delta / this.scene.physics.world.timeScale) / 1000;
+    this.y += direction.y * this.speed * (delta / this.scene.physics.world.timeScale) / 1000;
     this.updatePosition(this.x, this.y);
   }
 }

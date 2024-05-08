@@ -9,11 +9,13 @@ class Enemy extends Character {
   attackCooldown: number;
   attackCooldownTime: number;
   isDestroyed: boolean;
+  isBeingDestroyed: boolean;
 
   constructor(scene: Scene, x: number, y: number, color: number, speed: number, separationDistance: number) {
     super(scene, x, y, color, speed);
     this.separationDistance = separationDistance;
     this.isDestroyed = false;
+    this.isBeingDestroyed = false;
   }
 
   applySeparation(enemies: Character[]) {
@@ -40,6 +42,10 @@ class Enemy extends Character {
   }
 
   destroyEnemy() {
+    if (this.isBeingDestroyed) {
+      return;
+    }
+    this.isBeingDestroyed = true;
     // Particle explosion using small circles
     const explosionParticles: GameObjects.Graphics[] = [];
 
@@ -67,9 +73,20 @@ class Enemy extends Character {
       });
     }
 
-    // Destroy the enemy sprite
     this.sprite.destroy();
-    this.isDestroyed = true;
+
+    this.scene.tweens.add({
+      targets: this.scene.physics.world,
+      props: {
+        timeScale: { value: 1.5, duration: 300, ease: 'Sine.easeInOut' } // Slow down
+      },
+      yoyo: true, // Makes the tween reverse using the same duration and ease
+      hold: 200,
+      onComplete: () => {
+        this.scene.physics.world.timeScale = 1; // Ensure it's set back to normal
+        this.isDestroyed = true;
+      }
+    });
   }
 
 }
