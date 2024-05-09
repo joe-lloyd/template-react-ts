@@ -1,6 +1,7 @@
 import Enemy from "./Enemy.ts";
 import { Physics, Scene } from "phaser";
 import Character from "./Character.ts";
+import { Bullet } from "./Bullet.ts";
 
 export class RangedEnemy extends Enemy {
   bullets: Phaser.Physics.Arcade.Group;
@@ -34,25 +35,16 @@ export class RangedEnemy extends Enemy {
   }
 
   handleRangedAttack(delta: number, player: Character) {
+    // Adjusted bullet creation code
     if (!this.isAttacking && this.attackCooldown <= 0) {
       this.isAttacking = true;
-
-      // Create a bullet as an ellipse
-      const bullet = this.scene.add.ellipse(this.x, this.y, 10, 10, 0x00FFFF);
-      this.scene.physics.add.existing(bullet);
-      const bulletBody = bullet.body as Physics.Arcade.Body;
-      const bulletSpeed = 300;
+      const bullet = new Bullet(this.scene, this.x, this.y);
       const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
-      const velocity = new Phaser.Math.Vector2(Math.cos(angle), Math.sin(angle)). scale(bulletSpeed);
-      bulletBody.setVelocity(velocity.x, velocity.y);
+      bullet.fire(this.x, this.y, angle, 300);
 
-      // Destroy the bullet after 1 second
-      this.scene.time.delayedCall(1000, () => {
-        bullet.destroy();
-      });
-
+      this.scene.time.delayedCall(10000, () => bullet.destroy());
       this.isAttacking = false;
-      this.attackCooldown = 1000; // Set attack cooldown (1 second)
+      this.attackCooldown = 1000; // 1 second cooldown
     }
 
     if (this.attackCooldown > 0) {

@@ -52,11 +52,12 @@ class Enemy extends Character {
       return;
     }
     this.isBeingDestroyed = true;
+
     // Particle explosion using small circles
-    const explosionParticles: GameObjects.Graphics[] = [];
+    const explosionParticles: Phaser.GameObjects.Graphics[] = [];
 
     for (let i = 0; i < 50; i++) {
-      const particle = this.scene.add.graphics({ fillStyle: { color: 730274 } });
+      const particle = this.scene.add.graphics({ fillStyle: { color: 0xB22222 } }); // Adjusted color code
       particle.fillCircle(0, 0, 5);
       particle.setPosition(this.x, this.y);
 

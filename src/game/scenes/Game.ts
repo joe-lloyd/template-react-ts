@@ -30,7 +30,7 @@ export class Game extends Scene {
     this.camera = this.cameras.main;
     this.camera.setBackgroundColor(0x000000);
     EventBus.emit("current-scene-ready", this);
-    EventBus.emit('display-data', `Time Scale: ${this.physics.world.timeScale}`);
+    EventBus.emit('display-data', `Time Scale: ${this.physics.world.timeScale.toFixed(3)}`);
 
     this.backgroundGrid.initializeGraphics();
 
@@ -45,7 +45,7 @@ export class Game extends Scene {
     this.player.update(delta);
     this.enemies = this.enemies.filter((enemy) => !enemy.isDestroyed)
     this.enemies.forEach(enemy => enemy.update(delta, this.player, [...this.spawner.meleeEnemies, ...this.spawner.rangedEnemies]));
-    EventBus.emit('display-data', `Time Scale: ${this.physics.world.timeScale}`);
+    EventBus.emit('display-data', `Time Scale: ${this.physics.world.timeScale.toFixed(3)}`);
   }
 
   changeScene() {
