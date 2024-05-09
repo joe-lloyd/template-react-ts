@@ -1,6 +1,6 @@
 // Enemy.ts
 import Character from "./Character.ts";
-import { GameObjects, Scene } from "phaser";
+import { Scene } from "phaser";
 
 class Enemy extends Character {
   separationDistance: number;

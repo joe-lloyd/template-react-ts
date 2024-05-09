@@ -83,8 +83,8 @@ class Player extends Character {
       const startOpacity = 0.7;
       const endOpacity = 1;
       const duration = this.parryDuration;
-      const startAngle = this.sprite.rotation + Math.PI / 8;
-      const endAngle = startAngle + Math.PI * 3 / 4;
+      const startAngle = this.sprite.rotation + (Math.PI / 2);
+      const arcAngle = Math.PI / 3;
 
       // Function to update the graphics
       const updateGraphics = (progress: number) => {
@@ -94,7 +94,7 @@ class Player extends Character {
         graphics.clear();
         graphics.lineStyle(2, 0x0000FF, opacity); // Blue color
         graphics.beginPath();
-        graphics.arc(this.x, this.y, radius, startAngle, endAngle);
+        graphics.arc(this.x, this.y, radius, startAngle - arcAngle, startAngle + arcAngle);
         graphics.strokePath();
         graphics.closePath();
       };
