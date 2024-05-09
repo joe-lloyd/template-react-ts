@@ -1,8 +1,8 @@
-import { Scene } from "phaser";
 import Character from "./Character.ts";
 import { MeleeEnemy } from "./MeleeEnemy.ts";
 import { RangedEnemy } from "./RangedEnemy.ts";
 import InputHandler from "./InputHandler.ts";
+import { Game } from "../scenes/Game.ts";
 
 class Player extends Character {
   dodgeSpeed: number;
@@ -22,7 +22,7 @@ class Player extends Character {
   enemies: (MeleeEnemy | RangedEnemy)[]; // Reference to enemies
   inputHandler: InputHandler;
 
-  constructor(scene: Scene, x: number, y: number, enemies: (MeleeEnemy | RangedEnemy)[]) {
+  constructor(scene: Game, x: number, y: number, enemies: (MeleeEnemy | RangedEnemy)[]) {
     super(scene, x, y, 0xFF0000, 200);
     this.dodgeSpeed = 500;
     this.dodgeCooldown = 0;
@@ -76,36 +76,45 @@ class Player extends Character {
     if (!this.isParrying && this.parryCooldown <= 0) {
       this.isParrying = true;
 
-      // Create the graphics object
+      // Graphics object for visual representation of the parry zone
       const graphics = this.scene.add.graphics();
       const startRadius = 25;
       const endRadius = 40;
-      const startOpacity = 0.7;
-      const endOpacity = 1;
       const duration = this.parryDuration;
-      const startAngle = this.sprite.rotation + (Math.PI / 2);
-      const arcAngle = Math.PI / 3;
+      const startAngle = this.sprite.rotation + Math.PI / 2; // Compensate for sprite orientation
+      const arcAngle = Math.PI / 4; // The arc spans 60 degrees
 
-      // Function to update the graphics
-      const updateGraphics = (progress: number) => {
-        const radius = startRadius + (endRadius - startRadius) * progress;
-        const opacity = startOpacity + (endOpacity - startOpacity) * progress;
+      // Define the parry hitbox as a circle
+      const parryHitbox = new Phaser.Geom.Circle(this.x, this.y, endRadius);
 
-        graphics.clear();
-        graphics.lineStyle(2, 0x0000FF, opacity); // Blue color
-        graphics.beginPath();
-        graphics.arc(this.x, this.y, radius, startAngle - arcAngle, startAngle + arcAngle);
-        graphics.strokePath();
-        graphics.closePath();
-      };
-
-      // Update the graphics over time
+      // Update the graphics and check collisions in an arc
       this.scene.tweens.addCounter({
         from: 0,
         to: 1,
         duration: duration,
         onUpdate: (tween) => {
-          updateGraphics(tween.getValue());
+          const progress = tween.getValue();
+          const radius = startRadius + (endRadius - startRadius) * progress;
+
+          // Update graphics for the parry zone
+          graphics.clear();
+          graphics.lineStyle(2, 0x0000FF, 1); // Blue color for visibility
+          graphics.beginPath();
+          graphics.arc(this.x, this.y, radius, startAngle - arcAngle / 2, startAngle + arcAngle / 2);
+          graphics.strokePath();
+          graphics.closePath();
+
+          // Check for collision with bullets
+          this.scene.bullets.getChildren().forEach((bullet) => {
+            const angleToBullet = Phaser.Math.Angle.Between(this.x, this.y, bullet.x, bullet.y);
+            const angleDifference = Phaser.Math.Angle.Wrap(angleToBullet - startAngle);
+            const withinArc = Math.abs(angleDifference) <= arcAngle / 2;
+
+            if (withinArc && Phaser.Geom.Circle.ContainsPoint(parryHitbox, {x: bullet.x, y: bullet.y})) {
+              console.log("Parry successful on bullet!");
+              bullet.reflect();  // Reflect off the tangent normal
+            }
+          });
         },
         onComplete: () => {
           graphics.destroy();

@@ -1,14 +1,15 @@
-import { GameObjects, Scene } from "phaser";
+import { GameObjects } from "phaser";
+import { Game } from "../scenes/Game.ts";
 
 class Character {
   sprite: GameObjects.Graphics;
   x: number;
   y: number;
-  scene: Scene;
+  scene: Game;
   speed: number;
   color: number;  // Store current color
 
-  constructor(scene: Scene, x: number, y: number, color: number, speed: number) {
+  constructor(scene: Game, x: number, y: number, color: number, speed: number) {
     this.scene = scene;
     this.x = x;
     this.y = y;

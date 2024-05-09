@@ -35,12 +35,14 @@ export class RangedEnemy extends Enemy {
   }
 
   handleRangedAttack(delta: number, player: Character) {
-    // Adjusted bullet creation code
     if (!this.isAttacking && this.attackCooldown <= 0) {
       this.isAttacking = true;
       const bullet = new Bullet(this.scene, this.x, this.y);
       const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
       bullet.fire(this.x, this.y, angle, 300);
+
+      // Add bullet to the scene's central bullet group
+      this.scene.bullets.add(bullet);
 
       this.scene.time.delayedCall(10000, () => bullet.destroy());
       this.isAttacking = false;
