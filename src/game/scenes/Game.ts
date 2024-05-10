@@ -10,7 +10,7 @@ import { Bullet } from "../game-objects/Bullet"; // Ensure you have this import 
 export class Game extends Scene {
   player: Player;
   enemies: (RangedEnemy | MeleeEnemy)[];
-  bullets: Phaser.GameObjects.Group; // Centralized group for all bullets
+  bullets: Phaser.GameObjects.Group;
   camera: Phaser.Cameras.Scene2D.Camera;
   spawner: EnemySpawner;
   backgroundGrid: BackgroundGrid;
@@ -38,11 +38,11 @@ export class Game extends Scene {
 
     const { meleeEnemies, rangedEnemies } = this.spawner.spawnEnemies(2);
     this.enemies = [...meleeEnemies, ...rangedEnemies];
-    this.player = new Player(this, this.width / 2, this.height / 2, this.enemies, this.bullets);
+    this.player = new Player(this, this.width / 2, this.height / 2, this.enemies);
     this.camera.startFollow(this.player.sprite, true, 0.09, 0.09);
   }
 
-  update(time: number, delta: number) {
+  update(_time: number, delta: number) {
     this.backgroundGrid.draw();
     this.player.update(delta);
     this.enemies.forEach(enemy => {

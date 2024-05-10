@@ -3,6 +3,7 @@ import { MeleeEnemy } from "./MeleeEnemy.ts";
 import { RangedEnemy } from "./RangedEnemy.ts";
 import InputHandler from "./InputHandler.ts";
 import { Game } from "../scenes/Game.ts";
+import { Bullet } from "./Bullet.ts";
 
 class Player extends Character {
   dodgeSpeed: number;
@@ -105,7 +106,8 @@ class Player extends Character {
           graphics.closePath();
 
           // Check for collision with bullets
-          this.scene.bullets.getChildren().forEach((bullet) => {
+          this.scene.bullets.getChildren().forEach((gameObject) => {
+            const bullet = gameObject as Bullet;
             const angleToBullet = Phaser.Math.Angle.Between(this.x, this.y, bullet.x, bullet.y);
             const angleDifference = Phaser.Math.Angle.Wrap(angleToBullet - startAngle);
             const withinArc = Math.abs(angleDifference) <= arcAngle / 2;
