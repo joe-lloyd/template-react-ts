@@ -1,9 +1,9 @@
 import Character from "./Character.ts";
-import { MeleeEnemy } from "./MeleeEnemy.ts";
-import { RangedEnemy } from "./RangedEnemy.ts";
 import InputHandler from "./InputHandler.ts";
 import { Game } from "../scenes/Game.ts";
 import { Bullet } from "./Bullet.ts";
+import { RangedEnemy } from "./RangedEnemy.ts";
+import { MeleeEnemy } from "./MeleeEnemy.ts";
 
 class Player extends Character {
   dodgeSpeed: number;
@@ -20,10 +20,9 @@ class Player extends Character {
   attackCooldown: number;
   attackCooldownTime: number;
   dodgeCooldownTime: number;
-  enemies: (MeleeEnemy | RangedEnemy)[]; // Reference to enemies
   inputHandler: InputHandler;
 
-  constructor(scene: Game, x: number, y: number, enemies: (MeleeEnemy | RangedEnemy)[]) {
+  constructor(scene: Game, x: number, y: number) {
     super(scene, x, y, 0xFF0000, 200);
     this.dodgeSpeed = 500;
     this.dodgeCooldown = 0;
@@ -39,26 +38,19 @@ class Player extends Character {
     this.parryCooldownTime = 1000;
     this.attackCooldownTime = 500;
     this.dodgeCooldownTime = 500;
-    this.enemies = enemies; // Store reference to enemies
     this.inputHandler = new InputHandler(scene);
-  }
-
-  updatePosition(x: number, y: number) {
-    this.sprite.clear();
-    this.sprite.fillTriangle(-16, -16, 0, 16, 16, -16);
-    this.sprite.setPosition(x, y);
   }
 
   handleDodge(moveDirection: Phaser.Math.Vector2) {
     if (!this.isDodging && this.dodgeCooldown <= 0) {
       this.isDodging = true;
-      this.sprite.setAlpha(0.5);
+      this.setAlpha(0.5);
 
       if (this.inputHandler.isMoving) {
         this.dodgeDirection.x = moveDirection.x;
         this.dodgeDirection.y = moveDirection.y;
       } else {
-        const dodgeAngle = this.sprite.rotation - Math.PI / 2; // Adjust to dodge backwards?
+        const dodgeAngle = this.rotation - Math.PI / 2; // Adjust to dodge backwards?
         this.dodgeDirection = new Phaser.Math.Vector2(Math.cos(dodgeAngle), Math.sin(dodgeAngle)).normalize();
       }
 
@@ -68,7 +60,7 @@ class Player extends Character {
       // Start the dodge effect
       this.scene.time.delayedCall(this.dodgeTime, () => {
         this.isDodging = false;
-        this.sprite.setAlpha(1);
+        this.setAlpha(1);
       });
     }
   }
@@ -82,7 +74,7 @@ class Player extends Character {
       const startRadius = 25;
       const endRadius = 40;
       const duration = this.parryDuration;
-      const startAngle = this.sprite.rotation + Math.PI / 2; // Compensate for sprite orientation
+      const startAngle = this.rotation + Math.PI / 2; // Compensate for sprite orientation
       const arcAngle = Math.PI / 4; // The arc spans 60 degrees
 
       // Define the parry hitbox as a circle
@@ -112,7 +104,10 @@ class Player extends Character {
             const angleDifference = Phaser.Math.Angle.Wrap(angleToBullet - startAngle);
             const withinArc = Math.abs(angleDifference) <= arcAngle / 2;
 
-            if (withinArc && Phaser.Geom.Circle.ContainsPoint(parryHitbox, {x: bullet.x, y: bullet.y})) {
+            if (withinArc && Phaser.Geom.Circle.ContainsPoint(parryHitbox, {
+              x: bullet.x,
+              y: bullet.y,
+            })) {
               console.log("Parry successful on bullet!");
               bullet.reflect();  // Reflect off the tangent normal
             }
@@ -134,7 +129,7 @@ class Player extends Character {
       // Create the graphics object
       const graphics = this.scene.add.graphics();
       const radius = 60;
-      const startAngle = this.sprite.rotation + Math.PI / 8;
+      const startAngle = this.rotation + Math.PI / 8;
       const endAngle = startAngle + Math.PI * 3 / 4;
 
       // Function to update the graphics
@@ -166,7 +161,8 @@ class Player extends Character {
 
         // Check for collision with enemies
         const swordHitbox = new Phaser.Geom.Triangle(tipX, tipY, baseX1, baseY1, baseX2, baseY2);
-        this.enemies.forEach(enemy => {
+        [...this.scene.spawner.meleeEnemies.getChildren(), ...this.scene.spawner.rangedEnemies.getChildren()].forEach(gameObject => {
+          const enemy = gameObject as RangedEnemy | MeleeEnemy;
           const enemyHitbox = new Phaser.Geom.Triangle(enemy.x - 16, enemy.y - 16, enemy.x, enemy.y + 16, enemy.x + 16, enemy.y - 16);
           if (Phaser.Geom.Intersects.TriangleToTriangle(swordHitbox, enemyHitbox)) {
             enemy.destroyEnemy(); // Call destroyEnemy method on the enemy
@@ -202,12 +198,12 @@ class Player extends Character {
       this.y += moveDirection.y * this.speed * ((delta / this.scene.physics.world.timeScale) / 1000);
     }
 
-    this.updatePosition(this.x, this.y);
+    // this.updatePosition(this.x, this.y);
   }
 
   handleFacing() {
     let angle;
-    if (this.inputHandler.lastInputSource === 'gamepad') {
+    if (this.inputHandler.lastInputSource === "gamepad") {
       const rightStickDirection = this.inputHandler.getRightStickDirection();
       if (rightStickDirection) {
         angle = Phaser.Math.Angle.Between(0, 0, rightStickDirection.x, rightStickDirection.y);
@@ -221,7 +217,7 @@ class Player extends Character {
       angle = Phaser.Math.Angle.Between(this.x, this.y, worldPoint.x, worldPoint.y);
     }
 
-    this.sprite.rotation = angle - Math.PI / 2;
+    this.rotation = angle - Math.PI / 2;
   }
 
 

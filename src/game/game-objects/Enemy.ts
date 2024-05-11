@@ -1,6 +1,6 @@
 // Enemy.ts
 import Character from "./Character.ts";
-import { Scene } from "phaser";
+import { Game } from "../scenes/Game.ts";
 
 class Enemy extends Character {
   separationDistance: number;
@@ -11,41 +11,36 @@ class Enemy extends Character {
   isDestroyed: boolean;
   isBeingDestroyed: boolean;
 
-  constructor(scene: Scene, x: number, y: number, color: number, speed: number, separationDistance: number) {
+  constructor(scene: Game, x: number, y: number, color: number, speed: number, separationDistance: number) {
     super(scene, x, y, color, speed);
     this.separationDistance = separationDistance;
     this.isDestroyed = false;
     this.isBeingDestroyed = false;
+    this.isDestroyed= false;
   }
 
-  getBounds() {
-    const worldWidth = this.scene.physics.world.bounds.width;
-    const worldHeight = this.scene.physics.world.bounds.height;
-    return new Phaser.Geom.Rectangle(this.x, this.y, worldWidth, worldHeight);
-  }
-
-  applySeparation(enemies: Character[]) {
-    let moveX = 0;
-    let moveY = 0;
-    let neighborCount = 0;
-
-    for (const enemy of enemies) {
-      if (enemy !== this) {
-        const distance = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
-        if (distance < this.separationDistance) {
-          moveX += this.x - enemy.x;
-          moveY += this.y - enemy.y;
-          neighborCount++;
-        }
-      }
-    }
-
-    if (neighborCount > 0) {
-      const separationVector = new Phaser.Math.Vector2(moveX, moveY).normalize();
-      this.x += separationVector.x * this.speed * 0.1;
-      this.y += separationVector.y * this.speed * 0.1;
-    }
-  }
+  // applySeparation(enemies: Character[]) {
+  //   let moveX = 0;
+  //   let moveY = 0;
+  //   let neighborCount = 0;
+  //
+  //   for (const enemy of enemies) {
+  //     if (enemy !== this) {
+  //       const distance = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
+  //       if (distance < this.separationDistance) {
+  //         moveX += this.x - enemy.x;
+  //         moveY += this.y - enemy.y;
+  //         neighborCount++;
+  //       }
+  //     }
+  //   }
+  //
+  //   if (neighborCount > 0) {
+  //     const separationVector = new Phaser.Math.Vector2(moveX, moveY).normalize();
+  //     this.x += separationVector.x * this.speed * 0.1;
+  //     this.y += separationVector.y * this.speed * 0.1;
+  //   }
+  // }
 
   destroyEnemy() {
     if (this.isBeingDestroyed) {
@@ -80,8 +75,6 @@ class Enemy extends Character {
       });
     }
 
-    this.sprite.destroy();
-
     this.scene.tweens.add({
       targets: this.scene.physics.world,
       props: {
@@ -92,8 +85,16 @@ class Enemy extends Character {
       onComplete: () => {
         this.scene.physics.world.timeScale = 1; // Ensure it's set back to normal
         this.isDestroyed = true;
+
+        // Destroy the enemy after the animation
+        this.destroy();
       }
     });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  update(_delta: number) {
+    if (this.isDestroyed) return;
   }
 
 }

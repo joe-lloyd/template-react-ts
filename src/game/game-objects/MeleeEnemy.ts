@@ -1,10 +1,11 @@
 import Enemy from "./Enemy.ts";
-import { Scene } from "phaser";
-import Character from "./Character.ts";
+import { Game } from "../scenes/Game.ts";
 
 export class MeleeEnemy extends Enemy {
-  constructor(scene: Scene, x: number, y: number) {
+  constructor(scene: Game, x: number, y: number) {
     super(scene, x, y, 0xFF00FF, 150, 50); // Pink color
+    scene.add.existing(this);
+    scene.physics.add.existing(this);
     this.attackDuration = 200;
     this.isAttacking = false;
     this.attackCooldown = 0;
@@ -16,7 +17,7 @@ export class MeleeEnemy extends Enemy {
       this.isAttacking = true;
 
       const graphics = this.scene.add.graphics();
-      const startAngle = this.sprite.rotation + Math.PI / 8;
+      const startAngle = this.rotation + Math.PI / 8;
       const endAngle = startAngle + Math.PI * 3 / 4;
 
       const updateGraphics = (progress: number) => {
@@ -42,7 +43,7 @@ export class MeleeEnemy extends Enemy {
         from: 0,
         to: 1,
         duration: this.attackDuration,
-        ease: 'Sine.InOut',
+        ease: "Sine.InOut",
         onUpdate: (tween) => {
           updateGraphics(tween.getValue());
         },
@@ -50,7 +51,7 @@ export class MeleeEnemy extends Enemy {
           graphics.destroy();
           this.isAttacking = false;
           this.attackCooldown = 1000; // Set attack cooldown (1 second)
-        }
+        },
       });
 
       this.attackCooldown = this.attackCooldownTime;
@@ -61,13 +62,14 @@ export class MeleeEnemy extends Enemy {
     }
   }
 
-  update(delta: number, player: Character, enemies: Character[]) {
-    this.applySeparation(enemies);
+  update(delta: number) {
+    super.update(delta);
+    // this.applySeparation(enemies);
 
-    const direction = new Phaser.Math.Vector2(player.x - this.x, player.y - this.y).normalize();
+    const direction = new Phaser.Math.Vector2(this.scene.player.x - this.x, this.scene.player.y - this.y).normalize();
     this.move(delta, direction);
     this.handleMeleeAttack(delta, 0xFF00FF, 40); // Pink triangle
     // Rotate towards player
-    this.sprite.rotation = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y) - Math.PI / 2;
+    this.rotation = Phaser.Math.Angle.Between(this.x, this.y, this.scene.player.x, this.scene.player.y) - Math.PI / 2;
   }
 }

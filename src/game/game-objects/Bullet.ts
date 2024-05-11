@@ -1,6 +1,8 @@
 // Bullet.ts
 import { Physics, GameObjects } from "phaser";
 import { Game } from "../scenes/Game.ts";
+import { MeleeEnemy } from "./MeleeEnemy.ts";
+import { RangedEnemy } from "./RangedEnemy.ts";
 
 export class Bullet extends GameObjects.Ellipse {
   body: Physics.Arcade.Body;
@@ -39,11 +41,10 @@ export class Bullet extends GameObjects.Ellipse {
 
   update(): void {
     if (this.friendly) {
-      this.scene.enemies.forEach((enemy) => {
+      [...this.scene.spawner.meleeEnemies.getChildren(), ...this.scene.spawner.rangedEnemies.getChildren()].forEach((gameObject) => {
+        const enemy = gameObject as RangedEnemy | MeleeEnemy;
         if (this.scene.physics.overlap(this, enemy)) {
-          console.log("A parried bullet hit an enemy!");
-          enemy.destroyEnemy();  // Assuming `destroyEnemy` is a method on the enemy class
-          // bullet.destroy();      // Optionally destroy the bullet upon hitting the enemy
+          enemy.destroyEnemy();
         }
       });
     }
