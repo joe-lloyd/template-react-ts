@@ -1,5 +1,4 @@
 import Enemy from "./Enemy.ts";
-import Character from "./Character.ts";
 import { Bullet } from "./Bullet.ts";
 import { Game } from "../scenes/Game.ts";
 
@@ -8,38 +7,41 @@ export class RangedEnemy extends Enemy {
   attackRange: number;
 
   constructor(scene: Game, x: number, y: number) {
-    super(scene, x, y, 0x00FFFF, 150, 50);
+    super(scene, x, y, 0x00FFFF, 150);
     scene.add.existing(this);
     scene.physics.add.existing(this);
-    this.bullets = scene.physics.add.group({ classType: Phaser.GameObjects.Ellipse, runChildUpdate: true });
+    this.bullets = scene.physics.add.group({
+      classType: Phaser.GameObjects.Ellipse,
+      runChildUpdate: true,
+    });
     this.attackRange = 200; // Set desired range for shooting
     this.isAttacking = false;
     this.attackCooldown = 0;
   }
 
-  handleRangedAttack(delta: number, player: Character) {
-    if (!this.isAttacking && this.attackCooldown <= 0) {
-      this.isAttacking = true;
-      const bullet = new Bullet(this.scene, this.x, this.y);
-      const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
-      bullet.fire(this.x, this.y, angle, 300);
+  handleRangedAttack() {
+    if (this.isAttacking || this.attackCooldown > 0) return;
+    this.isAttacking = true;
+    const bullet = new Bullet(this.scene, this.x, this.y);
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, this.scene.player.x, this.scene.player.y);
+    bullet.fire(this.x, this.y, angle, 300);
 
-      // Add bullet to the scene's central bullet group
-      this.scene.bullets.add(bullet);
+    // Add bullet to the scene's central bullet group
+    this.scene.bullets.add(bullet);
 
-      this.scene.time.delayedCall(10000, () => bullet.destroy());
-      this.isAttacking = false;
-      this.attackCooldown = 1000; // 1 second cooldown
-    }
+    this.scene.time.delayedCall(10000, () => bullet.destroy());
+    this.isAttacking = false;
+    this.attackCooldown = 1000;
+  }
 
+  handleCooldowns(delta: number) {
     if (this.attackCooldown > 0) {
       this.attackCooldown -= delta;
     }
   }
 
-  update(delta: number) {
-    super.update(delta);
-    // this.applySeparation(enemies);
+  update(_time: number, delta: number) {
+    super.update(_time, delta);
 
     const distance = Phaser.Math.Distance.Between(this.x, this.y, this.scene.player.x, this.scene.player.y);
     let direction = new Phaser.Math.Vector2(0, 0);
@@ -53,7 +55,7 @@ export class RangedEnemy extends Enemy {
     // Rotate towards player
     this.rotation = Phaser.Math.Angle.Between(this.x, this.y, this.scene.player.x, this.scene.player.y) - Math.PI / 2;
 
-    this.handleRangedAttack(delta, this.scene.player);
+    this.handleRangedAttack();
+    this.handleCooldowns(delta);
   }
-
 }

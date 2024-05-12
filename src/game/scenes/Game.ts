@@ -4,6 +4,8 @@ import { EventBus } from "../EventBus";
 import { EnemySpawner } from "../game-objects/EnemySpawner";
 import { BackgroundGrid } from "../game-objects/BackgroundGrid";
 import { Bullet } from "../game-objects/Bullet";
+import { MeleeEnemy } from "../game-objects/MeleeEnemy.ts";
+import { RangedEnemy } from "../game-objects/RangedEnemy.ts";
 
 export class Game extends Scene {
   player: Player;
@@ -14,6 +16,8 @@ export class Game extends Scene {
   width: number = 1024;
   height: number = 768;
   gridSize: number = 32;
+  meleeEnemies: MeleeEnemy[];
+  rangedEnemies: RangedEnemy[];
 
   constructor() {
     super("Game");
@@ -31,14 +35,12 @@ export class Game extends Scene {
 
     this.backgroundGrid.initializeGraphics();
 
-    console.log('Scene initialized:', this.sys); // Should be true
-    console.log('Physics world initialized:', this.physics.world); // Should be true
-
-
-
     this.spawner = new EnemySpawner(this);
     this.bullets = this.add.group({ classType: Bullet, runChildUpdate: true });
-    this.spawner.spawnEnemies(2); // Spawn enemies directly into their respective groups
+    this.spawner.spawnEnemies(3);
+
+    this.meleeEnemies = this.spawner.meleeEnemies.getChildren() as MeleeEnemy[];
+    this.rangedEnemies = this.spawner.rangedEnemies.getChildren() as RangedEnemy[];
 
     this.player = new Player(this, this.width / 2, this.height / 2);
     this.camera.startFollow(this.player, true, 0.09, 0.09);
@@ -47,14 +49,15 @@ export class Game extends Scene {
 
   update(_time: number, delta: number) {
     this.backgroundGrid.draw();
-    this.player.update(delta);
+    this.player.update(_time, delta);
 
     // Update melee and ranged enemies
-    this.spawner.meleeEnemies.getChildren().forEach(enemy => {
-      enemy.update(delta);
+    this.meleeEnemies.forEach(enemy => {
+      enemy.update(_time, delta);
     });
-    this.spawner.rangedEnemies.getChildren().forEach(enemy => {
-      enemy.update(delta);
+
+    this.rangedEnemies.forEach(enemy => {
+      enemy.update(_time, delta);
     });
 
     // Update and manage bullets globally

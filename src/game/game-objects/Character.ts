@@ -26,15 +26,19 @@ class Character extends Physics.Arcade.Sprite {
     this.scene.physics.add.existing(this);
   }
 
-  move(_delta: number, direction: Phaser.Math.Vector2) {
-    const velocityX = direction.x * this.speed;
-    const velocityY = direction.y * this.speed;
-    this.setVelocity(velocityX, velocityY);
-  }
+  move(delta: number, direction: Phaser.Math.Vector2) {
+    // Convert delta from milliseconds to seconds
+    const scaledDelta = (delta / 1000)// * this.scene.physics.world.timeScale;
 
-  updatePosition() {
-    // This method might not be necessary anymore, as position and rendering
-    // are handled by the physics engine and the Sprite base class.
+    // Apply the direction and speed scaled by the adjusted delta
+    // Assuming 'speed' units are in pixels per second, compute pixels per frame
+    const velocityX = direction.x * this.speed * scaledDelta;
+    const velocityY = direction.y * this.speed * scaledDelta;
+
+    console.log(`Speed: ${this.speed}, Delta: ${delta}, Scaled Delta: ${scaledDelta}, Velocity X: ${velocityX}, Velocity Y: ${velocityY}`);
+
+    // Set the computed velocities
+    this.setVelocity(velocityX, velocityY);
   }
 }
 

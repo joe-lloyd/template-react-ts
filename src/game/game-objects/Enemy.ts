@@ -3,7 +3,6 @@ import Character from "./Character.ts";
 import { Game } from "../scenes/Game.ts";
 
 class Enemy extends Character {
-  separationDistance: number;
   attackDuration: number;
   isAttacking: boolean;
   attackCooldown: number;
@@ -11,42 +10,20 @@ class Enemy extends Character {
   isDestroyed: boolean;
   isBeingDestroyed: boolean;
 
-  constructor(scene: Game, x: number, y: number, color: number, speed: number, separationDistance: number) {
+  constructor(scene: Game, x: number, y: number, color: number, speed: number) {
     super(scene, x, y, color, speed);
-    this.separationDistance = separationDistance;
     this.isDestroyed = false;
     this.isBeingDestroyed = false;
-    this.isDestroyed= false;
+    this.isDestroyed = false;
   }
 
-  // applySeparation(enemies: Character[]) {
-  //   let moveX = 0;
-  //   let moveY = 0;
-  //   let neighborCount = 0;
-  //
-  //   for (const enemy of enemies) {
-  //     if (enemy !== this) {
-  //       const distance = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
-  //       if (distance < this.separationDistance) {
-  //         moveX += this.x - enemy.x;
-  //         moveY += this.y - enemy.y;
-  //         neighborCount++;
-  //       }
-  //     }
-  //   }
-  //
-  //   if (neighborCount > 0) {
-  //     const separationVector = new Phaser.Math.Vector2(moveX, moveY).normalize();
-  //     this.x += separationVector.x * this.speed * 0.1;
-  //     this.y += separationVector.y * this.speed * 0.1;
-  //   }
-  // }
 
   destroyEnemy() {
     if (this.isBeingDestroyed) {
       return;
     }
     this.isBeingDestroyed = true;
+    this.setAlpha(0);
 
     // Particle explosion using small circles
     const explosionParticles: Phaser.GameObjects.Graphics[] = [];
@@ -71,14 +48,14 @@ class Enemy extends Character {
         alpha: { value: 0, duration: 500 },
         onComplete: () => {
           particle.destroy();
-        }
+        },
       });
     }
 
     this.scene.tweens.add({
       targets: this.scene.physics.world,
       props: {
-        timeScale: { value: 1.5, duration: 300, ease: 'Sine.easeInOut' } // Slow down
+        timeScale: { value: 1.5, duration: 300, ease: "Sine.easeInOut" }, // Slow down
       },
       yoyo: true, // Makes the tween reverse using the same duration and ease
       hold: 200,
@@ -88,15 +65,9 @@ class Enemy extends Character {
 
         // Destroy the enemy after the animation
         this.destroy();
-      }
+      },
     });
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  update(_delta: number) {
-    if (this.isDestroyed) return;
-  }
-
 }
 
 export default Enemy;
