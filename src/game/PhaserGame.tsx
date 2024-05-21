@@ -54,7 +54,7 @@ export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame
 
     });
 
-    EventBus.on('display-data', (data: string) => {
+    EventBus.on('display-time-scale', (data: string) => {
       if (setSideData && typeof setSideData === "function") {
         setSideData(data);
       }

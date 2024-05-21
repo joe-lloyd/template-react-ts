@@ -30,7 +30,7 @@ export class BaseGame extends Scene {
     this.camera = this.cameras.main;
     this.camera.setBackgroundColor(0x000000);
     EventBus.emit("current-scene-ready", this);
-    EventBus.emit("display-data", `Time Scale: ${this.physics.world.timeScale.toFixed(3)}`);
+    EventBus.emit("display-time-scale", `Time Scale: ${this.physics.world.timeScale.toFixed(3)}`);
 
     this.backgroundGrid.initializeGraphics();
   }
@@ -38,6 +38,6 @@ export class BaseGame extends Scene {
     this.backgroundGrid.draw();
     this.player.update(_time, delta);
 
-    EventBus.emit("display-data", `Time Scale: ${this.physics.world.timeScale.toFixed(3)}`);
+    EventBus.emit("display-time-scale", `Time Scale: ${this.physics.world.timeScale.toFixed(3)}`);
   }
 }
