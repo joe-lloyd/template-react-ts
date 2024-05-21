@@ -1,5 +1,5 @@
 import { Physics } from "phaser";
-import { GameLevel1 } from "../scenes/GameLevel1.ts";
+import { GameLevel1 } from "../../scenes/GameLevel1.ts";
 
 class Character extends Physics.Arcade.Sprite {
   speed: number;

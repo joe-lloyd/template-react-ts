@@ -1,6 +1,6 @@
 import Enemy from "./Enemy.ts";
 import { Bullet } from "./Bullet.ts";
-import { GameLevel1 } from "../scenes/GameLevel1.ts";
+import { GameLevel1 } from "../../scenes/GameLevel1.ts";
 
 export class RangedEnemy extends Enemy {
   bullets: Phaser.Physics.Arcade.Group;

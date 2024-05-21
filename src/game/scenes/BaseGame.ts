@@ -1,10 +1,10 @@
 import { Scene } from "phaser";
-import Player from "../game-objects/Player";
+import Player from "../game-objects/Characters/Player.ts";
 import { EventBus } from "../EventBus";
-import { BackgroundGrid } from "../game-objects/BackgroundGrid";
-import { EnemySpawner } from "../game-objects/EnemySpawner.ts";
-import { MeleeEnemy } from "../game-objects/MeleeEnemy.ts";
-import { RangedEnemy } from "../game-objects/RangedEnemy.ts";
+import { BackgroundGrid } from "../game-objects/Level/BackgroundGrid.ts";
+import { EnemySpawner } from "../game-objects/Characters/EnemySpawner.ts";
+import { MeleeEnemy } from "../game-objects/Characters/MeleeEnemy.ts";
+import { RangedEnemy } from "../game-objects/Characters/RangedEnemy.ts";
 
 export class BaseGame extends Scene {
   player: Player;

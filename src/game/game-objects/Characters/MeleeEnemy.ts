@@ -1,5 +1,5 @@
 import Enemy from "./Enemy.ts";
-import { GameLevel1 } from "../scenes/GameLevel1.ts";
+import { GameLevel1 } from "../../scenes/GameLevel1.ts";
 
 export class MeleeEnemy extends Enemy {
   constructor(scene: GameLevel1, x: number, y: number) {

@@ -1,6 +1,6 @@
 import Character from "./Character.ts";
-import InputHandler from "./InputHandler.ts";
-import { GameLevel1 } from "../scenes/GameLevel1.ts";
+import InputHandler from "../InputHandler.ts";
+import { GameLevel1 } from "../../scenes/GameLevel1.ts";
 import { Bullet } from "./Bullet.ts";
 import { RangedEnemy } from "./RangedEnemy.ts";
 import { MeleeEnemy } from "./MeleeEnemy.ts";

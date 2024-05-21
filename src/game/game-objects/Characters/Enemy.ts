@@ -1,6 +1,6 @@
 // Enemy.ts
 import Character from "./Character.ts";
-import { GameLevel1 } from "../scenes/GameLevel1.ts";
+import { GameLevel1 } from "../../scenes/GameLevel1.ts";
 
 class Enemy extends Character {
   attackDuration: number;

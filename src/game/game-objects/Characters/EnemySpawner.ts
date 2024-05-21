@@ -1,6 +1,6 @@
-import { MeleeEnemy } from "./MeleeEnemy";
-import { RangedEnemy } from "./RangedEnemy";
-import { GameLevel1 } from "../scenes/GameLevel1.ts";
+import { MeleeEnemy } from "./MeleeEnemy.ts";
+import { RangedEnemy } from "./RangedEnemy.ts";
+import { GameLevel1 } from "../../scenes/GameLevel1.ts";
 
 export class EnemySpawner {
   scene: GameLevel1;

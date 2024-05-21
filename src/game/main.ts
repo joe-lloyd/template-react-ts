@@ -1,6 +1,6 @@
 import { Boot } from './scenes/Boot';
 import { GameOver } from './scenes/GameOver';
-import { GameLevel1 as MainGame } from './scenes/GameLevel1.ts';
+import { GameLevel1 } from './scenes/GameLevel1.ts';
 import { MainMenu } from './scenes/MainMenu';
 import { AUTO, Game } from 'phaser';
 import { Preloader } from './scenes/Preloader';
@@ -17,7 +17,7 @@ const config: Phaser.Types.Core.GameConfig = {
         Boot,
         Preloader,
         MainMenu,
-        MainGame,
+        GameLevel1,
         GameOver
     ],
     input: {

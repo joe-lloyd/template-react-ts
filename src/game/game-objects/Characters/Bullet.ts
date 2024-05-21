@@ -1,6 +1,6 @@
 // Bullet.ts
 import { Physics, GameObjects } from "phaser";
-import { GameLevel1 } from "../scenes/GameLevel1.ts";
+import { GameLevel1 } from "../../scenes/GameLevel1.ts";
 import { MeleeEnemy } from "./MeleeEnemy.ts";
 import { RangedEnemy } from "./RangedEnemy.ts";
 
