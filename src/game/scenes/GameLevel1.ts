@@ -35,8 +35,8 @@ export class GameLevel1 extends BaseGame {
 
   createMapLayout() {
     // Adjusted room dimensions
-    const roomWidth = 800;
-    const roomHeight = 1000;
+    const roomWidth = 600;
+    const roomHeight = 750;
     const wallThickness = 20;
     const doorWidth = 80;
 
@@ -44,10 +44,10 @@ export class GameLevel1 extends BaseGame {
     this.createRoom(100, 100, roomWidth, roomHeight, wallThickness, doorWidth, "right");
 
     // Room 2 (right of Room 1)
-    this.createRoom(100 + roomWidth + wallThickness, 100, roomWidth, roomHeight, wallThickness, doorWidth, "left-right");
+    this.createRoom(100 + roomWidth, 100, roomWidth, roomHeight, wallThickness, doorWidth, "left-right");
 
     // Room 3 (right of Room 2)
-    this.createRoom(100 + 2 * (roomWidth + wallThickness), 100, roomWidth, roomHeight, wallThickness, doorWidth, "left");
+    this.createRoom(100 + 2 * roomWidth, 100, roomWidth, roomHeight, wallThickness, doorWidth, "left");
   }
 
   createRoom(x: number, y: number, width: number, height: number, thickness: number, doorWidth: number, doorPosition: string) {
