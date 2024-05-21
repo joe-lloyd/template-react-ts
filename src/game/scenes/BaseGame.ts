@@ -34,9 +34,9 @@ export class BaseGame extends Scene {
 
     this.backgroundGrid.initializeGraphics();
   }
-  update(_time: number, delta: number) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  update(_time: number, _delta: number) {
     this.backgroundGrid.draw();
-    this.player.update(_time, delta);
 
     EventBus.emit("display-time-scale", `Time Scale: ${this.physics.world.timeScale.toFixed(3)}`);
   }

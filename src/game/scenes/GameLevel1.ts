@@ -1,5 +1,4 @@
 import { EnemySpawner } from "../game-objects/Characters/EnemySpawner.ts";
-import { BackgroundGrid } from "../game-objects/Level/BackgroundGrid.ts";
 import { Bullet } from "../game-objects/Characters/Bullet.ts";
 import { MeleeEnemy } from "../game-objects/Characters/MeleeEnemy.ts";
 import { RangedEnemy } from "../game-objects/Characters/RangedEnemy.ts";
@@ -8,12 +7,10 @@ import { BaseGame } from "./BaseGame.ts";
 import Player from "../game-objects/Characters/Player.ts";
 
 export class GameLevel1 extends BaseGame {
-  walls: Phaser.Physics.Arcade.StaticGroup;
   map: Map;
 
   constructor() {
     super("GameLevel1");
-    this.backgroundGrid = new BackgroundGrid(this, this.gridSize);
   }
 
   create() {
@@ -33,12 +30,11 @@ export class GameLevel1 extends BaseGame {
 
     this.meleeEnemies = this.spawner.meleeEnemies.getChildren() as MeleeEnemy[];
     this.rangedEnemies = this.spawner.rangedEnemies.getChildren() as RangedEnemy[];
-
-    console.log(`GameLevel1 initialized with player at (${this.player.x}, ${this.player.y})`);
   }
 
   update(_time: number, delta: number) {
     super.update(_time, delta);
+    this.player.update(_time, delta);
 
     this.meleeEnemies.forEach(enemy => {
       enemy.update(_time, delta);

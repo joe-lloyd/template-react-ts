@@ -59,9 +59,6 @@ export class Map extends Phaser.Physics.Arcade.StaticGroup {
     doorPositions: string[],
     enemies: { type: string, count: number }[],
   ) {
-    // Top and bottom walls
-    this.add(new Wall(this.scene, x, y, width, thickness, 0x00ff00));
-    this.add(new Wall(this.scene, x, y + height - thickness, width, thickness, 0x00ff00));
 
     // Left wall
     if (doorPositions.includes("left")) {
