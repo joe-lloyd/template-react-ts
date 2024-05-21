@@ -26,6 +26,9 @@ export class GameLevel1 extends BaseGame {
     this.camera.startFollow(this.player, true, 0.09, 0.09);
     this.player.addToScene();
 
+    // Collide player with walls
+    this.physics.add.collider(this.player, this.map);
+
     this.spawner = new EnemySpawner(this);
     this.bullets = this.add.group({ classType: Bullet, runChildUpdate: true });
     this.spawner.spawnEnemies(3);
@@ -33,6 +36,14 @@ export class GameLevel1 extends BaseGame {
     this.meleeEnemies = this.spawner.meleeEnemies.getChildren() as MeleeEnemy[];
     this.rangedEnemies = this.spawner.rangedEnemies.getChildren() as RangedEnemy[];
 
+    // Collide enemies with walls
+    this.meleeEnemies.forEach(enemy => {
+      this.physics.add.collider(enemy, this.map);
+    });
+
+    this.rangedEnemies.forEach(enemy => {
+      this.physics.add.collider(enemy, this.map);
+    });
   }
 
   update(_time: number, delta: number) {

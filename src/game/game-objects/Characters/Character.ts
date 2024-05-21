@@ -19,6 +19,8 @@ class Character extends Physics.Arcade.Sprite {
     this.scene = scene;
     this.speed = speed;
     this.color = color;
+
+    this.scene.physics.world.enable(this);
   }
 
   addToScene() {
@@ -27,10 +29,11 @@ class Character extends Physics.Arcade.Sprite {
     this.scene.physics.add.collider(this, this.scene.walls);
   }
 
-  handleMove(delta: number, direction: Phaser.Math.Vector2) {
-    const scaledDelta = (delta / this.scene.physics.world.timeScale) / 1000;
-    this.x += direction.x * this.speed * scaledDelta;
-    this.y += direction.y * this.speed * scaledDelta;
+  handleMove(_delta: number, direction: Phaser.Math.Vector2) {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    const velocityX = direction.x * this.speed;
+    const velocityY = direction.y * this.speed;
+    body.setVelocity(velocityX, velocityY);
   }
 
   update(_time: number, delta: number) {

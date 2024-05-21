@@ -186,15 +186,6 @@ class Player extends Character {
     this.attackCooldown = this.attackCooldownTime;
   }
 
-  handleMovement(delta: number, moveDirection: Phaser.Math.Vector2) {
-    if (this.isDodging) {
-      this.x += this.dodgeDirection.x * this.dodgeSpeed * ((delta / this.scene.physics.world.timeScale) / 1000);
-      this.y += this.dodgeDirection.y * this.dodgeSpeed * ((delta / this.scene.physics.world.timeScale) / 1000);
-    } else if (moveDirection.x !== 0 || moveDirection.y !== 0) {
-      super.handleMove(delta, moveDirection);
-    }
-  }
-
   handleFacing() {
     let angle;
     if (this.inputHandler.lastInputSource === "gamepad") {
@@ -224,6 +215,19 @@ class Player extends Character {
     }
     if (this.attackCooldown > 0) {
       this.attackCooldown -= delta;
+    }
+  }
+
+  handleMovement(delta: number, moveDirection: Phaser.Math.Vector2) {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    if (this.isDodging) {
+      const velocityX = this.dodgeDirection.x * this.dodgeSpeed;
+      const velocityY = this.dodgeDirection.y * this.dodgeSpeed;
+      body.setVelocity(velocityX, velocityY);
+    } else if (moveDirection.x !== 0 || moveDirection.y !== 0) {
+      super.handleMove(delta, moveDirection);
+    } else {
+      body.setVelocity(0, 0);
     }
   }
 
