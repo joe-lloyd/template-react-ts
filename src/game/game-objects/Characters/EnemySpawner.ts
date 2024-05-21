@@ -21,30 +21,31 @@ export class EnemySpawner {
     });
   }
 
-  spawnEnemies(numEnemies: number) {
-    for (let i = 0; i < numEnemies; i++) {
-      const { x: mx, y: my } = this.getRandomEdgePosition();
-      const melee = new MeleeEnemy(this.scene, mx, my);
-      melee.addToScene();
-      this.meleeEnemies.add(melee);
-
-      const { x: rx, y: ry } = this.getRandomEdgePosition();
-      const ranged = new RangedEnemy(this.scene, rx, ry);
-      this.rangedEnemies.add(ranged);
-      ranged.addToScene();
+  spawnEnemies(roomConfig: { x: number, y: number, width: number, height: number, enemies: { type: string, count: number }[] }) {
+    if (!roomConfig || !roomConfig.enemies) {
+      console.error('Invalid room configuration:', roomConfig);
+      return;
     }
+
+    roomConfig.enemies.forEach(enemyConfig => {
+      for (let i = 0; i < enemyConfig.count; i++) {
+        const { x, y } = this.getRandomPositionInRoom(roomConfig);
+        if (enemyConfig.type === 'melee') {
+          const melee = new MeleeEnemy(this.scene, x, y);
+          melee.addToScene();
+          this.meleeEnemies.add(melee);
+        } else if (enemyConfig.type === 'ranged') {
+          const ranged = new RangedEnemy(this.scene, x, y);
+          ranged.addToScene();
+          this.rangedEnemies.add(ranged);
+        }
+      }
+    });
   }
 
-  getRandomEdgePosition() {
-    const spawnOnVerticalEdge = Phaser.Math.Between(0, 1) === 0;
-    if (spawnOnVerticalEdge) {
-      const x = Phaser.Math.Between(0, 1) === 0 ? 0 : this.scene.scale.width;
-      const y = Phaser.Math.Between(0, this.scene.scale.height);
-      return { x, y };
-    } else {
-      const x = Phaser.Math.Between(0, this.scene.scale.width);
-      const y = Phaser.Math.Between(0, 1) === 0 ? 0 : this.scene.scale.height;
-      return { x, y };
-    }
+  getRandomPositionInRoom(room: { x: number, y: number, width: number, height: number }) {
+    const x = Phaser.Math.Between(room.x, room.x + room.width);
+    const y = Phaser.Math.Between(room.y, room.y + room.height);
+    return { x, y };
   }
 }

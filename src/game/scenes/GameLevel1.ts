@@ -6,10 +6,12 @@ import { RangedEnemy } from "../game-objects/Characters/RangedEnemy.ts";
 import { Map } from "../game-objects/Level/Map.ts";
 import { BaseGame } from "./BaseGame.ts";
 import Player from "../game-objects/Characters/Player.ts";
+import { Door } from "../game-objects/Level/Door.ts";
 
 export class GameLevel1 extends BaseGame {
   walls: Phaser.Physics.Arcade.StaticGroup;
   map: Map;
+  doors: Door[];
 
   constructor() {
     super("GameLevel1");
@@ -26,23 +28,28 @@ export class GameLevel1 extends BaseGame {
     this.camera.startFollow(this.player, true, 0.09, 0.09);
     this.player.addToScene();
 
-    // Collide player with walls
-    this.physics.add.collider(this.player, this.map);
-
     this.spawner = new EnemySpawner(this);
     this.bullets = this.add.group({ classType: Bullet, runChildUpdate: true });
-    this.spawner.spawnEnemies(3);
 
     this.meleeEnemies = this.spawner.meleeEnemies.getChildren() as MeleeEnemy[];
     this.rangedEnemies = this.spawner.rangedEnemies.getChildren() as RangedEnemy[];
 
-    // Collide enemies with walls
-    this.meleeEnemies.forEach(enemy => {
-      this.physics.add.collider(enemy, this.map);
-    });
-
-    this.rangedEnemies.forEach(enemy => {
-      this.physics.add.collider(enemy, this.map);
+    // Handle door interactions
+    this.doors = this.map.doors;
+    this.doors.forEach((door, index) => {
+      console.log(`Setting up door ${index + 1}`);
+      this.physics.add.overlap(this.player, door, () => {
+        if (!door.isOpen) {
+          door.toggleDoor();
+          const roomConfig = this.map.rooms[index];
+          console.log(`Opening door ${index + 1} with config:`, roomConfig);
+          if (roomConfig) {
+            this.spawner.spawnEnemies(roomConfig);
+          } else {
+            console.error(`No room configuration found for door ${index + 1}`);
+          }
+        }
+      });
     });
   }
 

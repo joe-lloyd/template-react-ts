@@ -26,7 +26,7 @@ class Character extends Physics.Arcade.Sprite {
   addToScene() {
     this.scene.add.existing(this);
     this.scene.physics.add.existing(this);
-    this.scene.physics.add.collider(this, this.scene.walls);
+    this.scene.physics.add.collider(this, this.scene.map);
   }
 
   handleMove(_delta: number, direction: Phaser.Math.Vector2) {

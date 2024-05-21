@@ -11,7 +11,9 @@ export class Door extends Physics.Arcade.Sprite {
   }
 
   toggleDoor() {
-    this.isOpen = !this.isOpen;
-    // You can add more code here to change the door's appearance or behavior when it's open or closed
+    if (!this.isOpen) {
+      this.isOpen = !this.isOpen;
+      // Add more code here to change the door's appearance or behavior when it's open or closed
+    }
   }
 }
