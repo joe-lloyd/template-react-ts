@@ -20,16 +20,15 @@ export class Door extends Physics.Arcade.Sprite {
   }
 
   handleOverlap() {
-    console.log(`Overlap detected for door at (${this.x}, ${this.y}) with room index ${this.roomIndex}`);
-    if (!this.isOpen) {
-      this.toggleDoor();
-      const roomConfig = this.scene.map.rooms[this.roomIndex + 1]; // Open the next room
-      console.log(`Opening door ${this.roomIndex + 1} with config:`, roomConfig);
-      if (roomConfig) {
-        this.scene.spawner.spawnEnemies(roomConfig);
-      } else {
-        console.error(`No room configuration found for door ${this.roomIndex + 1}`);
-      }
+    if (this.isOpen) return;
+
+    this.toggleDoor();
+    const roomConfig = this.scene.map.rooms[this.roomIndex];
+    console.log(`Opening door ${this.roomIndex + 1} with config:`, roomConfig);
+    if (roomConfig) {
+      this.scene.spawner.spawnEnemies(roomConfig);
+    } else {
+      console.error(`No room configuration found for door ${this.roomIndex}`);
     }
   }
 
