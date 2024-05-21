@@ -1,6 +1,6 @@
 // Bullet.ts
 import { Physics, GameObjects } from "phaser";
-import { Game } from "../scenes/Game.ts";
+import { GameLevel1 } from "../scenes/GameLevel1.ts";
 import { MeleeEnemy } from "./MeleeEnemy.ts";
 import { RangedEnemy } from "./RangedEnemy.ts";
 
@@ -8,9 +8,9 @@ export class Bullet extends GameObjects.Ellipse {
   body: Physics.Arcade.Body;
   friendly: boolean;
   hasBeenParried: boolean;  // Flag to check if the bullet has been parried
-  scene: Game;
+  scene: GameLevel1;
 
-  constructor(scene: Game, x: number, y: number, friendly = false) {
+  constructor(scene: GameLevel1, x: number, y: number, friendly = false) {
     super(scene, x, y, 10, 10, 0x00FFFF);
     scene.add.existing(this);
     scene.physics.add.existing(this);

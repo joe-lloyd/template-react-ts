@@ -1,13 +1,13 @@
 import Enemy from "./Enemy.ts";
 import { Bullet } from "./Bullet.ts";
-import { Game } from "../scenes/Game.ts";
+import { GameLevel1 } from "../scenes/GameLevel1.ts";
 
 export class RangedEnemy extends Enemy {
   bullets: Phaser.Physics.Arcade.Group;
   attackRange: number;
 
-  constructor(scene: Game, x: number, y: number) {
-    super(scene, x, y, 0x00FFFF, 150);
+  constructor(scene: GameLevel1, x: number, y: number) {
+    super(scene, x, y, 0x00FF00, 100);
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.bullets = scene.physics.add.group({
@@ -49,7 +49,7 @@ export class RangedEnemy extends Enemy {
     // Move towards player if outside attack range
     if (distance > this.attackRange) {
       direction = new Phaser.Math.Vector2(this.scene.player.x - this.x, this.scene.player.y - this.y).normalize();
-      this.move(delta, direction);
+      this.handleMove(delta, direction);
     }
 
     // Rotate towards player

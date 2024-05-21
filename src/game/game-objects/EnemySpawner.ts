@@ -1,13 +1,13 @@
 import { MeleeEnemy } from "./MeleeEnemy";
 import { RangedEnemy } from "./RangedEnemy";
-import { Game } from "../scenes/Game.ts";
+import { GameLevel1 } from "../scenes/GameLevel1.ts";
 
 export class EnemySpawner {
-  scene: Game;
+  scene: GameLevel1;
   meleeEnemies: Phaser.Physics.Arcade.Group;
   rangedEnemies: Phaser.Physics.Arcade.Group;
 
-  constructor(scene: Game) {
+  constructor(scene: GameLevel1) {
     this.scene = scene;
 
     // Create groups with default settings, adjust as needed

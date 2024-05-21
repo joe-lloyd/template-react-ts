@@ -1,9 +1,9 @@
 import Enemy from "./Enemy.ts";
-import { Game } from "../scenes/Game.ts";
+import { GameLevel1 } from "../scenes/GameLevel1.ts";
 
 export class MeleeEnemy extends Enemy {
-  constructor(scene: Game, x: number, y: number) {
-    super(scene, x, y, 0xFF00FF, 150);
+  constructor(scene: GameLevel1, x: number, y: number) {
+    super(scene, x, y, 0xFF00FF, 100);
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.attackDuration = 200;
@@ -68,7 +68,7 @@ export class MeleeEnemy extends Enemy {
     super.update(_time, delta);
 
     const direction = new Phaser.Math.Vector2(this.scene.player.x - this.x, this.scene.player.y - this.y).normalize();
-    this.move(delta, direction);
+    this.handleMove(delta, direction);
     this.handleMeleeAttack();
     // Rotate towards player
     this.rotation = Phaser.Math.Angle.Between(this.x, this.y, this.scene.player.x, this.scene.player.y) - Math.PI / 2;

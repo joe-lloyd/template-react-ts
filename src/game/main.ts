@@ -1,6 +1,6 @@
 import { Boot } from './scenes/Boot';
 import { GameOver } from './scenes/GameOver';
-import { Game as MainGame } from './scenes/Game';
+import { GameLevel1 as MainGame } from './scenes/GameLevel1.ts';
 import { MainMenu } from './scenes/MainMenu';
 import { AUTO, Game } from 'phaser';
 import { Preloader } from './scenes/Preloader';

@@ -1,6 +1,6 @@
 import Character from "./Character.ts";
 import InputHandler from "./InputHandler.ts";
-import { Game } from "../scenes/Game.ts";
+import { GameLevel1 } from "../scenes/GameLevel1.ts";
 import { Bullet } from "./Bullet.ts";
 import { RangedEnemy } from "./RangedEnemy.ts";
 import { MeleeEnemy } from "./MeleeEnemy.ts";
@@ -22,9 +22,9 @@ class Player extends Character {
   dodgeCooldownTime: number;
   inputHandler: InputHandler;
 
-  constructor(scene: Game, x: number, y: number) {
-    super(scene, x, y, 0xFF0000, 200);
-    this.dodgeSpeed = 500;
+  constructor(scene: GameLevel1, x: number, y: number) {
+    super(scene, x, y, 0x0047AB, 300);
+    this.dodgeSpeed = 600;
     this.dodgeCooldown = 0;
     this.dodgeTime = 200;
     this.isDodging = false;
@@ -108,8 +108,7 @@ class Player extends Character {
             x: bullet.x,
             y: bullet.y,
           })) {
-            console.log("Parry successful on bullet!");
-            bullet.reflect();  // Reflect off the tangent normal
+            bullet.reflect();
           }
         });
       },
@@ -187,13 +186,12 @@ class Player extends Character {
     this.attackCooldown = this.attackCooldownTime;
   }
 
-  handleMovement(moveDirection: Phaser.Math.Vector2, delta: number) {
+  handleMovement(delta: number, moveDirection: Phaser.Math.Vector2) {
     if (this.isDodging) {
       this.x += this.dodgeDirection.x * this.dodgeSpeed * ((delta / this.scene.physics.world.timeScale) / 1000);
       this.y += this.dodgeDirection.y * this.dodgeSpeed * ((delta / this.scene.physics.world.timeScale) / 1000);
     } else if (moveDirection.x !== 0 || moveDirection.y !== 0) {
-      this.x += moveDirection.x * this.speed * ((delta / this.scene.physics.world.timeScale) / 1000);
-      this.y += moveDirection.y * this.speed * ((delta / this.scene.physics.world.timeScale) / 1000);
+      super.handleMove(delta, moveDirection);
     }
   }
 
@@ -233,7 +231,7 @@ class Player extends Character {
     const moveDirection = this.inputHandler.getMoveDirection();
 
     this.handleFacing();
-    this.handleMovement(moveDirection, delta);
+    this.handleMovement(delta, moveDirection);
 
     if (this.inputHandler.isActionPressed("dodge")) {
       this.handleDodge(moveDirection);

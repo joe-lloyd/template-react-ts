@@ -1,6 +1,6 @@
 // Enemy.ts
 import Character from "./Character.ts";
-import { Game } from "../scenes/Game.ts";
+import { GameLevel1 } from "../scenes/GameLevel1.ts";
 
 class Enemy extends Character {
   attackDuration: number;
@@ -10,13 +10,12 @@ class Enemy extends Character {
   isDestroyed: boolean;
   isBeingDestroyed: boolean;
 
-  constructor(scene: Game, x: number, y: number, color: number, speed: number) {
+  constructor(scene: GameLevel1, x: number, y: number, color: number, speed: number) {
     super(scene, x, y, color, speed);
     this.isDestroyed = false;
     this.isBeingDestroyed = false;
     this.isDestroyed = false;
   }
-
 
   destroyEnemy() {
     if (this.isBeingDestroyed) {
@@ -67,6 +66,10 @@ class Enemy extends Character {
         this.destroy();
       },
     });
+  }
+
+  update(_time: number, delta: number) {
+    super.update(_time, delta);
   }
 }
 

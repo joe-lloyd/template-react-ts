@@ -1,27 +1,30 @@
-import { Scene, Types, Input } from "phaser";
+import { Scene, Input } from "phaser";
 
 export default class InputHandler {
-  cursors: Types.Input.Keyboard.CursorKeys;
-  wasd: Record<"w" | "a" | "s" | "d" | "e", Input.Keyboard.Key>;
-  gamepad: Input.Gamepad.Gamepad | null = null;
   lastInputSource: "keyboard & mouse" | "gamepad" = "keyboard & mouse"; // Default to mouse
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  private wasd: { [key: string]: Phaser.Input.Keyboard.Key };
+  private gamepad: Phaser.Input.Gamepad.Gamepad | null;
   isMoving: boolean;
 
   constructor(private scene: Scene) {
-    // Keyboard setup
-    this.cursors = this.scene.input.keyboard.createCursorKeys();
-    this.cursors.space = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-    this.wasd = {
-      w: this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.W),
-      a: this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.A),
-      s: this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.S),
-      d: this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.D),
-      e: this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.E),
-    };
+    if (this.scene.input.keyboard) {
+      this.cursors = this.scene.input.keyboard.createCursorKeys();
+      this.cursors.space = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-    // Gamepad setup
-    this.scene.input.gamepad.once("connected", (pad) => {
+      this.wasd = {
+        w: this.scene.input.keyboard?.addKey(Input.Keyboard.KeyCodes.W),
+        a: this.scene.input.keyboard?.addKey(Input.Keyboard.KeyCodes.A),
+        s: this.scene.input.keyboard?.addKey(Input.Keyboard.KeyCodes.S),
+        d: this.scene.input.keyboard?.addKey(Input.Keyboard.KeyCodes.D),
+        e: this.scene.input.keyboard?.addKey(Input.Keyboard.KeyCodes.E),
+      };
+    } else {
+      throw new Error("InputHandler requires a scene with an input manager");
+    }
+
+    this.scene.input.gamepad?.once("connected", (pad: Input.Gamepad.Gamepad | null) => {
       this.gamepad = pad;
     });
     this.isMoving = false;
