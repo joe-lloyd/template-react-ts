@@ -1,17 +1,22 @@
-import { Scene, Input } from "phaser";
+import { Scene, Input } from 'phaser';
 
 export default class InputHandler {
-  lastInputSource: "keyboard & mouse" | "gamepad" = "keyboard & mouse"; // Default to mouse
+  lastInputSource: 'keyboard & mouse' | 'gamepad' = 'keyboard & mouse'; // Default to mouse
+
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+
   private wasd: { [key: string]: Phaser.Input.Keyboard.Key };
+
   private gamepad: Phaser.Input.Gamepad.Gamepad | null;
+
   isMoving: boolean;
 
   constructor(private scene: Scene) {
-
     if (this.scene.input.keyboard) {
       this.cursors = this.scene.input.keyboard.createCursorKeys();
-      this.cursors.space = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+      this.cursors.space = this.scene.input.keyboard.addKey(
+        Phaser.Input.Keyboard.KeyCodes.SPACE,
+      );
 
       this.wasd = {
         w: this.scene.input.keyboard?.addKey(Input.Keyboard.KeyCodes.W),
@@ -21,12 +26,15 @@ export default class InputHandler {
         e: this.scene.input.keyboard?.addKey(Input.Keyboard.KeyCodes.E),
       };
     } else {
-      throw new Error("InputHandler requires a scene with an input manager");
+      throw new Error('InputHandler requires a scene with an input manager');
     }
 
-    this.scene.input.gamepad?.once("connected", (pad: Input.Gamepad.Gamepad | null) => {
-      this.gamepad = pad;
-    });
+    this.scene.input.gamepad?.once(
+      'connected',
+      (pad: Input.Gamepad.Gamepad | null) => {
+        this.gamepad = pad;
+      },
+    );
     this.isMoving = false;
   }
 
@@ -37,26 +45,26 @@ export default class InputHandler {
     // Keyboard input
     if (this.cursors.left.isDown || this.wasd.a.isDown) {
       x -= 1;
-      this.lastInputSource = "keyboard & mouse";
+      this.lastInputSource = 'keyboard & mouse';
     }
     if (this.cursors.right.isDown || this.wasd.d.isDown) {
       x += 1;
-      this.lastInputSource = "keyboard & mouse";
+      this.lastInputSource = 'keyboard & mouse';
     }
     if (this.cursors.up.isDown || this.wasd.w.isDown) {
       y -= 1;
-      this.lastInputSource = "keyboard & mouse";
+      this.lastInputSource = 'keyboard & mouse';
     }
     if (this.cursors.down.isDown || this.wasd.s.isDown) {
       y += 1;
-      this.lastInputSource = "keyboard & mouse";
+      this.lastInputSource = 'keyboard & mouse';
     }
 
     // Gamepad input
     if (this.gamepad) {
       x += this.gamepad.leftStick.x;
       y += this.gamepad.leftStick.y;
-      this.lastInputSource = "gamepad";
+      this.lastInputSource = 'gamepad';
     }
 
     this.isMoving = x !== 0 || y !== 0;
@@ -69,38 +77,36 @@ export default class InputHandler {
       const x = this.gamepad.rightStick.x;
       const y = this.gamepad.rightStick.y;
       const deadZone = 0.1; // Define a dead zone to ignore minor inputs
-      if (Math.abs(x) > deadZone || Math.abs(y) > deadZone) { // Check if the stick is outside the dead zone
+      if (Math.abs(x) > deadZone || Math.abs(y) > deadZone) {
+        // Check if the stick is outside the dead zone
         return new Phaser.Math.Vector2(x, y).normalize();
       }
     }
     return null;
   }
 
-  isActionPressed(action: "dodge" | "attack" | "parry"): boolean {
+  isActionPressed(action: 'dodge' | 'attack' | 'parry'): boolean {
     switch (action) {
-      case "dodge":
+      case 'dodge':
         return (
           this.cursors.space.isDown ||
-          (this.gamepad && (
-            this.gamepad.buttons[0].pressed || // A button
-            this.gamepad.buttons[4].pressed    // Left Bumper
-          ))
+          (this.gamepad &&
+            (this.gamepad.buttons[0].pressed || // A button
+              this.gamepad.buttons[4].pressed)) // Left Bumper
         );
-      case "attack":
+      case 'attack':
         return (
           this.scene.input.keyboard.checkDown(this.wasd.e) ||
-          (this.gamepad && (
-            this.gamepad.buttons[1].pressed || // B button
-            this.gamepad.buttons[7].pressed // Right Trigger
-          ))
+          (this.gamepad &&
+            (this.gamepad.buttons[1].pressed || // B button
+              this.gamepad.buttons[7].pressed)) // Right Trigger
         );
-      case "parry":
+      case 'parry':
         return (
           this.scene.input.activePointer.isDown ||
-          (this.gamepad && (
-            this.gamepad.buttons[2].pressed || // X button
-            this.gamepad.buttons[5].pressed    // Right Bumper
-          ))
+          (this.gamepad &&
+            (this.gamepad.buttons[2].pressed || // X button
+              this.gamepad.buttons[5].pressed)) // Right Bumper
         );
       default:
         return false;

@@ -1,29 +1,43 @@
-import Character from "./Character.ts";
-import InputHandler from "../InputHandler.ts";
-import { GameLevel1 } from "../../scenes/GameLevel1.ts";
-import { Bullet } from "./Bullet.ts";
-import { RangedEnemy } from "./RangedEnemy.ts";
-import { MeleeEnemy } from "./MeleeEnemy.ts";
+import Character from './Character';
+import InputHandler from '../InputHandler';
+import { GameLevel1 } from '../../scenes/GameLevel1';
+import { Bullet } from './Bullet';
+import { RangedEnemy } from './RangedEnemy';
+import { MeleeEnemy } from './MeleeEnemy';
 
 class Player extends Character {
   dodgeSpeed: number;
+
   dodgeCooldown: number;
+
   dodgeTime: number;
+
   isDodging: boolean;
+
   dodgeDirection: Phaser.Math.Vector2;
+
   parryDuration: number;
+
   isParrying: boolean;
+
   parryCooldown: number;
+
   parryCooldownTime: number;
+
   attackDuration: number;
+
   isAttacking: boolean;
+
   attackCooldown: number;
+
   attackCooldownTime: number;
+
   dodgeCooldownTime: number;
+
   inputHandler: InputHandler;
 
   constructor(scene: GameLevel1, x: number, y: number) {
-    super(scene, x, y, 0x0047AB, 300);
+    super(scene, x, y, 0x0047ab, 300);
     this.dodgeSpeed = 600;
     this.dodgeCooldown = 0;
     this.dodgeTime = 200;
@@ -51,7 +65,10 @@ class Player extends Character {
       this.dodgeDirection.y = moveDirection.y;
     } else {
       const dodgeAngle = this.rotation - Math.PI / 2; // Adjust to dodge backwards?
-      this.dodgeDirection = new Phaser.Math.Vector2(Math.cos(dodgeAngle), Math.sin(dodgeAngle)).normalize();
+      this.dodgeDirection = new Phaser.Math.Vector2(
+        Math.cos(dodgeAngle),
+        Math.sin(dodgeAngle),
+      ).normalize();
     }
 
     // Reset cooldown immediately
@@ -91,23 +108,39 @@ class Player extends Character {
 
         // Update graphics for the parry zone
         graphics.clear();
-        graphics.lineStyle(2, 0x0000FF, 1); // Blue color for visibility
+        graphics.lineStyle(2, 0x0000ff, 1); // Blue color for visibility
         graphics.beginPath();
-        graphics.arc(this.x, this.y, radius, startAngle - arcAngle / 2, startAngle + arcAngle / 2);
+        graphics.arc(
+          this.x,
+          this.y,
+          radius,
+          startAngle - arcAngle / 2,
+          startAngle + arcAngle / 2,
+        );
         graphics.strokePath();
         graphics.closePath();
 
         // Check for collision with bullets
         this.scene.bullets.getChildren().forEach((gameObject) => {
           const bullet = gameObject as Bullet;
-          const angleToBullet = Phaser.Math.Angle.Between(this.x, this.y, bullet.x, bullet.y);
-          const angleDifference = Phaser.Math.Angle.Wrap(angleToBullet - startAngle);
+          const angleToBullet = Phaser.Math.Angle.Between(
+            this.x,
+            this.y,
+            bullet.x,
+            bullet.y,
+          );
+          const angleDifference = Phaser.Math.Angle.Wrap(
+            angleToBullet - startAngle,
+          );
           const withinArc = Math.abs(angleDifference) <= arcAngle / 2;
 
-          if (withinArc && Phaser.Geom.Circle.ContainsPoint(parryHitbox, {
-            x: bullet.x,
-            y: bullet.y,
-          })) {
+          if (
+            withinArc &&
+            Phaser.Geom.Circle.ContainsPoint(parryHitbox, {
+              x: bullet.x,
+              y: bullet.y,
+            })
+          ) {
             bullet.reflect();
           }
         });
@@ -128,7 +161,7 @@ class Player extends Character {
     const graphics = this.scene.add.graphics();
     const radius = 60;
     const startAngle = this.rotation + Math.PI / 8;
-    const endAngle = startAngle + Math.PI * 3 / 4;
+    const endAngle = startAngle + (Math.PI * 3) / 4;
 
     // Function to update the graphics
     const updateGraphics = (progress: number) => {
@@ -143,13 +176,17 @@ class Player extends Character {
       const tipY = this.y + radius * Math.sin(currentAngle);
 
       // Calculate the coordinates of the triangle's base
-      const baseX1 = this.x + (radius - 10) * Math.cos(currentAngle + Math.PI / 8);
-      const baseY1 = this.y + (radius - 10) * Math.sin(currentAngle + Math.PI / 8);
-      const baseX2 = this.x + (radius - 10) * Math.cos(currentAngle - Math.PI / 8);
-      const baseY2 = this.y + (radius - 10) * Math.sin(currentAngle - Math.PI / 8);
+      const baseX1 =
+        this.x + (radius - 10) * Math.cos(currentAngle + Math.PI / 8);
+      const baseY1 =
+        this.y + (radius - 10) * Math.sin(currentAngle + Math.PI / 8);
+      const baseX2 =
+        this.x + (radius - 10) * Math.cos(currentAngle - Math.PI / 8);
+      const baseY2 =
+        this.y + (radius - 10) * Math.sin(currentAngle - Math.PI / 8);
 
       // Draw the triangle
-      graphics.fillStyle(0xFF0000, 1); // Red color
+      graphics.fillStyle(0xff0000, 1); // Red color
       graphics.beginPath();
       graphics.moveTo(tipX, tipY);
       graphics.lineTo(baseX1, baseY1);
@@ -158,11 +195,30 @@ class Player extends Character {
       graphics.fillPath();
 
       // Check for collision with enemies
-      const swordHitbox = new Phaser.Geom.Triangle(tipX, tipY, baseX1, baseY1, baseX2, baseY2);
-      [...this.scene.spawner.meleeEnemies.getChildren(), ...this.scene.spawner.rangedEnemies.getChildren()].forEach(gameObject => {
+      const swordHitbox = new Phaser.Geom.Triangle(
+        tipX,
+        tipY,
+        baseX1,
+        baseY1,
+        baseX2,
+        baseY2,
+      );
+      [
+        ...this.scene.spawner.meleeEnemies.getChildren(),
+        ...this.scene.spawner.rangedEnemies.getChildren(),
+      ].forEach((gameObject) => {
         const enemy = gameObject as RangedEnemy | MeleeEnemy;
-        const enemyHitbox = new Phaser.Geom.Triangle(enemy.x - 16, enemy.y - 16, enemy.x, enemy.y + 16, enemy.x + 16, enemy.y - 16);
-        if (Phaser.Geom.Intersects.TriangleToTriangle(swordHitbox, enemyHitbox)) {
+        const enemyHitbox = new Phaser.Geom.Triangle(
+          enemy.x - 16,
+          enemy.y - 16,
+          enemy.x,
+          enemy.y + 16,
+          enemy.x + 16,
+          enemy.y - 16,
+        );
+        if (
+          Phaser.Geom.Intersects.TriangleToTriangle(swordHitbox, enemyHitbox)
+        ) {
           enemy.destroyEnemy(); // Call destroyEnemy method on the enemy
         }
       });
@@ -173,7 +229,7 @@ class Player extends Character {
       from: 0,
       to: 1,
       duration: this.attackDuration,
-      ease: "Sine.InOut",
+      ease: 'Sine.InOut',
       onUpdate: (tween) => {
         updateGraphics(tween.getValue());
       },
@@ -188,23 +244,35 @@ class Player extends Character {
 
   handleFacing() {
     let angle;
-    if (this.inputHandler.lastInputSource === "gamepad") {
+    if (this.inputHandler.lastInputSource === 'gamepad') {
       const rightStickDirection = this.inputHandler.getRightStickDirection();
       if (rightStickDirection) {
-        angle = Phaser.Math.Angle.Between(0, 0, rightStickDirection.x, rightStickDirection.y);
+        angle = Phaser.Math.Angle.Between(
+          0,
+          0,
+          rightStickDirection.x,
+          rightStickDirection.y,
+        );
       } else {
         // Fallback if no input from gamepad
         return;
       }
     } else {
       const pointer = this.scene.input.activePointer;
-      const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      angle = Phaser.Math.Angle.Between(this.x, this.y, worldPoint.x, worldPoint.y);
+      const worldPoint = this.scene.cameras.main.getWorldPoint(
+        pointer.x,
+        pointer.y,
+      );
+      angle = Phaser.Math.Angle.Between(
+        this.x,
+        this.y,
+        worldPoint.x,
+        worldPoint.y,
+      );
     }
 
     this.rotation = angle - Math.PI / 2;
   }
-
 
   cooldownUpdate(delta: number) {
     if (this.dodgeCooldown > 0) {
@@ -237,15 +305,15 @@ class Player extends Character {
     this.handleFacing();
     this.handleMovement(delta, moveDirection);
 
-    if (this.inputHandler.isActionPressed("dodge")) {
+    if (this.inputHandler.isActionPressed('dodge')) {
       this.handleDodge(moveDirection);
     }
 
-    if (this.inputHandler.isActionPressed("attack")) {
+    if (this.inputHandler.isActionPressed('attack')) {
       this.handleMeleeAttack();
     }
 
-    if (this.inputHandler.isActionPressed("parry")) {
+    if (this.inputHandler.isActionPressed('parry')) {
       this.handleParry();
     }
 

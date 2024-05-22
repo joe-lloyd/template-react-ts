@@ -1,14 +1,22 @@
-import { Physics } from "phaser";
-import { GameLevel1 } from "../../scenes/GameLevel1.ts";
+import { Physics } from 'phaser';
+import { GameLevel1 } from '../../scenes/GameLevel1';
 
 class Character extends Physics.Arcade.Sprite {
   speed: number;
+
   color: number;
+
   scene: GameLevel1;
 
-  constructor(scene: GameLevel1, x: number, y: number, color: number, speed: number) {
+  constructor(
+    scene: GameLevel1,
+    x: number,
+    y: number,
+    color: number,
+    speed: number,
+  ) {
     const width = 32;
-    const height = Math.sqrt(3) / 2 * width;
+    const height = (Math.sqrt(3) / 2) * width;
 
     const graphics = scene.add.graphics();
     const textureName = `triangleTexture-${color}`;

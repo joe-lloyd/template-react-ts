@@ -1,8 +1,15 @@
-import { Scene, Physics } from "phaser";
+import { Scene, Physics } from 'phaser';
 
 export class Wall extends Physics.Arcade.Sprite {
-  constructor(scene: Scene, x: number, y: number, width: number, height: number, color: number) {
-    super(scene, x + width / 2, y + height / 2, "wall");
+  constructor(
+    scene: Scene,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    color: number,
+  ) {
+    super(scene, x + width / 2, y + height / 2, 'wall');
     scene.add.existing(this);
     scene.physics.add.existing(this, true);
 
